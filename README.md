@@ -14,7 +14,8 @@
 # 文档
 语雀地址：[https://www.yuque.com/lvxianghe-tzsng/lvxianghe/zw4spv69ydxdoy7k?singleDoc#](https://www.yuque.com/lvxianghe-tzsng/lvxianghe/zw4spv69ydxdoy7k?singleDoc# ) 《前端脚手架》
 
-# 技术点
+# 架构设计
+## 技术点
  - 包管理：pnpm
  - 脚手架工具：vite4
  - 框架：vue3
@@ -33,6 +34,28 @@
  - 脚手架工具：如何从0到1开发一个脚手架，类比业界的vue-cli、create-react-app
  - vscode使用技巧、代码、浏览器调试技巧
 
+## 工程目录
+
+| 备注                 | 层级1      | 层级2       | 层级3    | 层级4 |
+| -------------------- | ---------- | ----------- | -------- | ----- |
+| git钩子配置          | .husky/    |             |          |       |
+| 项目打包后的目录     | dist/      |             |          |       |
+| 数据请求模拟         | mock/      |             |          |       |
+| 不经过打包的静态资源 | public/    |             |          |       |
+| ts类型定义           | type/      |             |          |       |
+| 自定义指令           | directive/ |             |          |       |
+| 项目资源             | src/       |             |          |       |
+| ajax http请求管理    |            | api/        |          |       |
+| 经过打包的静态资源   |            | assets/     |          |       |
+| 通用组件             |            | components/ |          |       |
+| 通用组件状态逻辑函数 |            | hooks/      |          |       |
+| 项目路由管理         |            | router/     |          |       |
+| 项目状态管理         |            | store/      |          |       |
+| 项目通用样式         |            | styles/     |          |       |
+| 工具函数             |            | utils/      |          |       |
+| axios函数            |            |             | request/ |       |
+| 页面组件             |            | views/      |          |       |
+|                      |            |             |          |       |
 
 
 
