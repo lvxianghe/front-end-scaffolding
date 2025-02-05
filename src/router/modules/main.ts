@@ -1,4 +1,5 @@
 import { RouteRecordRaw } from 'vue-router'
+import GoogleView from '@/views/google/index.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -25,6 +26,15 @@ const routes: Array<RouteRecordRaw> = [
     path: '/admin',
     name: 'admin',
     component: () => import('@/views/admin/index.vue')
+  },
+  {
+    path: '/google',
+    name: 'google',
+    component: GoogleView,
+    meta: {
+      title: '搜索引擎',
+      icon: 'Search'
+    }
   }
 ]
 

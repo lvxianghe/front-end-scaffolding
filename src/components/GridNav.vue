@@ -42,6 +42,13 @@
           <span>管理中心</span>
         </div>
       </div>
+
+      <div class="grid-item google" @click="handleModuleClick('google')">
+        <div class="content">
+          <el-icon><Search /></el-icon>
+          <span>搜索引擎</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -113,6 +120,10 @@ const handleModuleClick = (module: string) => {
       
       &.admin {
         background: linear-gradient(135deg, #3498db 0%, #5352ed 100%);
+      }
+
+      &.google {
+        background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
       }
 
       .content {

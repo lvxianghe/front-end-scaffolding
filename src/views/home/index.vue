@@ -34,6 +34,15 @@
         </div>
       </div>
 
+      <!-- Google搜索模块 -->
+      <div class="grid-item google" @click="handleModuleClick('google')">
+        <div class="content">
+          <el-icon><Search /></el-icon>
+          <span>搜索引擎</span>
+          <div class="description">高仿 Google 搜索</div>
+        </div>
+      </div>
+
       <!-- 管理模块 -->
       <div class="grid-item admin" @click="handleModuleClick('admin')">
         <div class="content">
@@ -134,11 +143,18 @@
       background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
     }
 
-    // ChatGPT模块 - 占据2x1的格子
+    // ChatGPT模块 - 占据1x1的格子
     .chatgpt {
-      grid-column: 3 / 5;
+      grid-column: 3 / 4;
       grid-row: 1 / 2;
       background: linear-gradient(135deg, #2f3542 0%, #57606f 100%);
+    }
+
+    // Google搜索模块 - 占据1x1的格子
+    .google {
+      grid-column: 4 / 5;
+      grid-row: 1 / 2;
+      background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
     }
 
     // 微信模块
@@ -171,22 +187,6 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 
 const handleModuleClick = (module: string) => {
-  switch (module) {
-    case 'redbook':
-      router.push('/redbook')
-      break
-    case 'chatgpt':
-      router.push('/chatgpt')
-      break
-    case 'wechat':
-      router.push('/wechat')
-      break
-    case 'douyin':
-      router.push('/douyin')
-      break
-    case 'admin':
-      router.push('/admin')
-      break
-  }
+  router.push(`/${module}`)
 }
 </script>

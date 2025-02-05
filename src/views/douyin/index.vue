@@ -2,75 +2,76 @@
   <div class="douyin-container">
     <GridNav />
     <div class="content">
-      <!-- 视频容器 -->
-      <div class="video-container" @wheel="handleScroll" ref="videoContainer">
-        <div 
-          v-for="(video, index) in videos" 
-          :key="video.id" 
-          class="video-wrapper"
-          :class="{ active: currentIndex === index }"
-          :style="{ transform: `translateY(${-100 * currentIndex}%)` }"
-        >
-          <video
-            :src="video.url"
-            class="video-player"
-            :ref="el => { if (el) videoRefs[index] = el }"
-            loop
-            preload="auto"
-            :muted="currentIndex !== index"
-            @click="togglePlay(index)"
-          />
-          
-          <!-- 视频信息浮层 -->
-          <div class="video-overlay">
-            <div class="author">
-              <el-avatar :size="40" :src="video.avatar" />
-              <span class="name">{{ video.author }}</span>
-              <el-button size="small" type="danger" round>关注</el-button>
+      <!-- 视频列表容器 -->
+      <swiper
+        class="video-swiper"
+        :direction="'vertical'"
+        :slides-per-view="1"
+        @slideChange="handleSlideChange"
+      >
+        <swiper-slide v-for="(video, index) in videos" :key="video.id">
+          <div class="video-wrapper">
+            <video
+              :src="video.url"
+              class="video-player"
+              :ref="el => { if (el) videoRefs[index] = el }"
+              loop
+              preload="auto"
+              :muted="currentIndex !== index"
+              @click="togglePlay(index)"
+            />
+            
+            <!-- 视频信息浮层 -->
+            <div class="video-overlay">
+              <div class="author">
+                <el-avatar :size="40" :src="video.avatar" />
+                <span class="name">{{ video.author }}</span>
+                <el-button size="small" type="danger" round>关注</el-button>
+              </div>
+              <div class="description">{{ video.description }}</div>
+              <div class="music">
+                <el-icon><Headset /></el-icon>
+                {{ video.music }}
+              </div>
             </div>
-            <div class="description">{{ video.description }}</div>
-            <div class="music">
-              <el-icon><Headset /></el-icon>
-              {{ video.music }}
+
+            <!-- 右侧操作栏 -->
+            <div class="action-bar">
+              <div class="action-item">
+                <el-avatar :size="50" :src="video.avatar" />
+                <div class="follow-btn">
+                  <el-icon><Plus /></el-icon>
+                </div>
+              </div>
+              <div class="action-item">
+                <div class="icon-btn like" :class="{ active: video.isLiked }" @click="toggleLike(index)">
+                  <el-icon><Star /></el-icon>
+                </div>
+                <span>{{ formatNumber(video.likes) }}</span>
+              </div>
+              <div class="action-item">
+                <div class="icon-btn">
+                  <el-icon><ChatDotRound /></el-icon>
+                </div>
+                <span>{{ formatNumber(video.comments) }}</span>
+              </div>
+              <div class="action-item">
+                <div class="icon-btn">
+                  <el-icon><Share /></el-icon>
+                </div>
+                <span>{{ formatNumber(video.shares) }}</span>
+              </div>
+              <div class="action-item">
+                <div class="music-disc">
+                  <el-avatar :size="40" :src="video.music_cover" />
+                </div>
+              </div>
             </div>
           </div>
+        </swiper-slide>
+      </swiper>
 
-          <!-- 右侧操作栏 -->
-          <div class="action-bar">
-            <div class="action-item">
-              <el-avatar :size="50" :src="video.avatar" />
-              <div class="follow-btn">
-                <el-icon><Plus /></el-icon>
-              </div>
-            </div>
-            <div class="action-item">
-              <div class="icon-btn like" :class="{ active: video.isLiked }" @click="toggleLike(index)">
-                <el-icon><Star /></el-icon>
-              </div>
-              <span>{{ formatNumber(video.likes) }}</span>
-            </div>
-            <div class="action-item">
-              <div class="icon-btn">
-                <el-icon><ChatDotRound /></el-icon>
-              </div>
-              <span>{{ formatNumber(video.comments) }}</span>
-            </div>
-            <div class="action-item">
-              <div class="icon-btn">
-                <el-icon><Share /></el-icon>
-              </div>
-              <span>{{ formatNumber(video.shares) }}</span>
-            </div>
-            <div class="action-item">
-              <div class="music-disc">
-                <el-avatar :size="40" :src="video.music_cover" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 底部导航 -->
+      <!-- 底部导航栏 -->
       <div class="bottom-nav">
         <div class="nav-item active">
           <el-icon><HomeFilled /></el-icon>
@@ -100,12 +101,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import { Virtual } from 'swiper/modules'
+import 'swiper/css'
 import GridNav from '@/components/GridNav.vue'
 
-const videoContainer = ref<HTMLElement | null>(null)
-const videoRefs = ref<HTMLVideoElement[]>([])
 const currentIndex = ref(0)
-const isScrolling = ref(false)
+const videoRefs = ref<HTMLVideoElement[]>([])
 
 // 模拟视频数据
 const videos = ref([
@@ -122,28 +124,37 @@ const videos = ref([
     shares: 234,
     isLiked: false
   },
+  {
+    id: 2,
+    url: 'https://example.com/video2.mp4',
+    author: '用户2',
+    avatar: 'https://picsum.photos/50/50?random=2',
+    description: '第二个视频描述...',
+    music: '另一首音乐 - 另一个歌手',
+    music_cover: 'https://picsum.photos/40/40?random=2',
+    likes: 23456,
+    comments: 888,
+    shares: 456,
+    isLiked: false
+  },
   // ... 添加更多视频数据
 ])
 
-// 处理滚动
-const handleScroll = (e: WheelEvent) => {
-  if (isScrolling.value) return
+// 处理滑动切换
+const handleSlideChange = (swiper: any) => {
+  const prevIndex = currentIndex.value
+  currentIndex.value = swiper.activeIndex
   
-  isScrolling.value = true
-  setTimeout(() => {
-    isScrolling.value = false
-  }, 800) // 防抖时间
-
-  if (e.deltaY > 0 && currentIndex.value < videos.value.length - 1) {
-    // 向下滑
-    pauseCurrentVideo()
-    currentIndex.value++
-    playCurrentVideo()
-  } else if (e.deltaY < 0 && currentIndex.value > 0) {
-    // 向上滑
-    pauseCurrentVideo()
-    currentIndex.value--
-    playCurrentVideo()
+  // 暂停上一个视频
+  const prevVideo = videoRefs.value[prevIndex]
+  if (prevVideo) {
+    prevVideo.pause()
+  }
+  
+  // 播放当前视频
+  const currentVideo = videoRefs.value[currentIndex.value]
+  if (currentVideo) {
+    currentVideo.play()
   }
 }
 
@@ -156,22 +167,6 @@ const togglePlay = (index: number) => {
     } else {
       video.pause()
     }
-  }
-}
-
-// 暂停当前视频
-const pauseCurrentVideo = () => {
-  const video = videoRefs.value[currentIndex.value]
-  if (video) {
-    video.pause()
-  }
-}
-
-// 播放当前视频
-const playCurrentVideo = () => {
-  const video = videoRefs.value[currentIndex.value]
-  if (video) {
-    video.play()
   }
 }
 
@@ -190,37 +185,11 @@ const formatNumber = (num: number) => {
   return num.toString()
 }
 
-// 监听触摸事件
-let touchStartY = 0
-const handleTouchStart = (e: TouchEvent) => {
-  touchStartY = e.touches[0].clientY
-}
-
-const handleTouchEnd = (e: TouchEvent) => {
-  const touchEndY = e.changedTouches[0].clientY
-  const deltaY = touchEndY - touchStartY
-  
-  if (Math.abs(deltaY) > 50) { // 最小滑动距离
-    handleScroll({ deltaY: -deltaY } as WheelEvent)
-  }
-}
-
 onMounted(() => {
   // 播放第一个视频
-  playCurrentVideo()
-  
-  // 添加触摸事件监听
-  if (videoContainer.value) {
-    videoContainer.value.addEventListener('touchstart', handleTouchStart)
-    videoContainer.value.addEventListener('touchend', handleTouchEnd)
-  }
-})
-
-onUnmounted(() => {
-  // 移除触摸事件监听
-  if (videoContainer.value) {
-    videoContainer.value.removeEventListener('touchstart', handleTouchStart)
-    videoContainer.value.removeEventListener('touchend', handleTouchEnd)
+  const firstVideo = videoRefs.value[0]
+  if (firstVideo) {
+    firstVideo.play()
   }
 })
 </script>
@@ -233,19 +202,17 @@ onUnmounted(() => {
   .content {
     height: calc(100vh - 120px);
     position: relative;
-    overflow: hidden;
     
-    .video-container {
+    .video-swiper {
       height: 100%;
-      position: relative;
+      
+      :deep(.swiper-slide) {
+        height: 100%;
+      }
       
       .video-wrapper {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
         height: 100%;
-        transition: transform 0.3s ease-out;
+        position: relative;
         
         .video-player {
           width: 100%;
@@ -358,6 +325,7 @@ onUnmounted(() => {
       bottom: 0;
       left: 0;
       right: 0;
+      z-index: 100; // 提高层级
       height: 60px;
       background: rgba(0, 0, 0, 0.8);
       backdrop-filter: blur(10px);
