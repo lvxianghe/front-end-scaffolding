@@ -58,6 +58,32 @@
 |                      |            |             |          |       |
 
 
+# 进度
+## 登录
+![image](https://github.com/user-attachments/assets/57420628-8f21-4e71-8d22-0cdc79993edd)
+
+## 主页面
+![image](https://github.com/user-attachments/assets/0b2cd9c7-d04e-446f-ba19-adde9dbc943f)
+
+## 抖音（仿）
+![image](https://github.com/user-attachments/assets/266cc4ee-efdf-4189-bdab-4a43f351b4bf)
+
+## 微信（仿）
+![image](https://github.com/user-attachments/assets/6fdaa57a-e1b3-4456-ab99-ef87639c0a3d)
+
+## 小红书（仿）
+![image](https://github.com/user-attachments/assets/afdb5413-834a-4487-b3ea-53ffc7676152)
+
+## chatGPT（仿）
+![image](https://github.com/user-attachments/assets/98613bd8-cae3-41d8-94fb-f0f918ce35b3)
+
+## 后台管理
+![image](https://github.com/user-attachments/assets/b4bd07c4-5543-476f-b3d3-2db21120b5e6)
+
+## 搜索引擎（仿百度谷歌）
+![image](https://github.com/user-attachments/assets/a5ce5925-805b-4668-b13b-70f769f2b8ec)
+
+
 
 
 
