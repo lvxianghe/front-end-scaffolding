@@ -21,6 +21,12 @@
 语雀地址：[https://www.yuque.com/lvxianghe-tzsng/lvxianghe/zw4spv69ydxdoy7k?singleDoc#](https://www.yuque.com/lvxianghe-tzsng/lvxianghe/zw4spv69ydxdoy7k?singleDoc# ) 《前端脚手架》
 
 # 架构设计
+## 版本
+ - nodejs：18.20.6
+ - npm：10.8.2
+ - pnpm：10.2.0
+
+
 ## 技术点
  - 包管理：pnpm
  - 脚手架工具：vite4
