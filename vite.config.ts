@@ -75,7 +75,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             proxy: {
                 // 这里的意思是 以/api开头发送的请求都会被转发到 http://xxx:3000
                 '/api': {
-                    target: 'http://localhost:29820',
+                    target: 'http://localhost:28922',
                     // 改变 Host Header
                     changeOrigin: true,
                     // 发起请求时将 '/api' 替换为 ''

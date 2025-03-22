@@ -119,6 +119,8 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/store/user'
+import { login } from '@/api/user'
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -200,22 +202,51 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
-// 登录处理
+// 恢复原始登录处理函数
 const handleLogin = async () => {
   try {
     if (currentType.value === 'password') {
-      await userStore.storeUserLogin(passwordForm)
+      // 直接调用 login 接口
+      const res = await login({
+        loginId: passwordForm.username,
+        password: passwordForm.password,
+        loginType: 1
+      })
+      
+      // 根据实际响应格式判断是否登录成功
+      if (res && (res.code === "请求成功" || res.message === "登录成功")) {
+        // 登录成功，保存token（如果有的话）
+        if (res.data) {
+          localStorage.setItem('token', res.data)
+        }
+        
+        // 跳转到首页
+        router.push('/home')
+        ElMessage.success('登录成功')
+      } else {
+        // 登录失败
+        ElMessage.error((res && res.message) || '登录失败')
+      }
+    } else if (currentType.value === 'captcha') {
+      // 处理验证码登录
+      // ...
+    } else if (currentType.value === 'oauth') {
+      // 处理第三方登录
+      // ...
     }
-    router.push('/')
-  } catch (error) {
+  } catch (error: any) {
     console.error(error)
+    ElMessage.error(error.message || '登录失败，请稍后重试')
   }
 }
 
-// 添加游客登录处理函数
+// 修改游客登录处理函数
 const handleGuestLogin = () => {
-  // 处理游客登录逻辑
-  router.push('/')
+  // 设置游客身份标识
+  localStorage.setItem('userRole', 'guest')
+  
+  // 直接跳转到首页，而不是根路径
+  router.push('/home')
 }
 </script>
 

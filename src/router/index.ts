@@ -3,6 +3,7 @@ import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import mainRoutes from './modules/main'
 import loginRouter from './modules/login'
+import homeRoutes from './modules/home'
 
 // 配置路由
 // const routes: Array<RouteRecordRaw> = [
@@ -34,21 +35,29 @@ const modules: Record<string, any> = import.meta.glob(['./modules/*.ts'], {
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    name: 'home',
-    component: () => import('@/views/home/index.vue')
+    redirect: '/login'
   },
-  loginRouter,  // 添加登录路由
-  ...mainRoutes  // 添加主路由模块
+  loginRouter,
+  homeRoutes,
+  ...mainRoutes
 ];
 routes.push(aboutRouter);
 const router = createRouter({
     history: createWebHashHistory(),
     routes,
 });
-router.beforeEach(async (_to, _from, next) => {
+router.beforeEach(async (to, from, next) => {
     NProgress.start();
-    // 这里可以添加登录验证逻辑
-    next();
+    
+    // 获取用户角色
+    const userRole = localStorage.getItem('userRole');
+    
+    // 如果是需要认证的页面，但用户是游客，则重定向到允许游客访问的页面
+    if (to.meta.requiresAuth && userRole === 'guest') {
+        next({ path: '/home' });
+    } else {
+        next();
+    }
 });
 router.afterEach((_to) => {
     NProgress.done();

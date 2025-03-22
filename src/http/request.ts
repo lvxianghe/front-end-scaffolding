@@ -10,12 +10,19 @@ interface BaseResponse<T = any> {
 }
 
 const service = axios.create({
-    baseURL: import.meta.env.VITE_APP_BASE_API,
-    timeout: 15000,
+    baseURL: '/api',
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json'
+    }
 });
 // axios实例拦截请求
 service.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
+        }
         return config;
     },
     (error: AxiosError) => {
@@ -106,3 +113,5 @@ export function del<T = any, U = any>(config: AxiosRequestConfig, url: string, d
 //     }
 
 // }
+
+export default service;

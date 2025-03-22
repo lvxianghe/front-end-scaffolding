@@ -7,6 +7,13 @@
     </div>
     
     <div class="grid-layout">
+      <div v-if="route.path !== '/home'" class="grid-item home" @click="goToHome">
+        <div class="content">
+          <el-icon><HomeFilled /></el-icon>
+          <span>首页</span>
+        </div>
+      </div>
+      
       <div class="grid-item redbook" @click="handleModuleClick('redbook')">
         <div class="content">
           <el-icon><Promotion /></el-icon>
@@ -56,6 +63,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { HomeFilled } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -69,6 +77,10 @@ const handleModuleClick = (module: string) => {
   const targetPath = `/${module}`
   if (route.path === targetPath) return
   router.push(targetPath)
+}
+
+const goToHome = () => {
+  router.push('/home')
 }
 </script>
 
@@ -124,6 +136,10 @@ const handleModuleClick = (module: string) => {
 
       &.google {
         background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+      }
+      
+      &.home {
+        background: linear-gradient(135deg, #6C7BFF 0%, #2CD9FF 100%);
       }
 
       .content {
