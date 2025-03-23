@@ -2,8 +2,8 @@
   <!-- 一般vue项目都会使用vue-router -->
   <!-- 所以我们这里直接写一个 router-view -->
   <div class="app-container">
-    <!-- 顶部导航栏 -->
-    <header class="app-header">
+    <!-- 顶部导航栏 - 在非登录页面和非首页显示 -->
+    <header v-if="!route.path.includes('/login') && route.path !== '/home'" class="app-header">
       <div class="header-left">
         <!-- 添加首页链接 - 在非home页面显示 -->
         <div v-if="route.path !== '/home'" class="home-link" @click="goToHome">
@@ -23,7 +23,7 @@
     </header>
     
     <!-- 页面内容 -->
-    <main class="app-content">
+    <main class="app-content" :class="{ 'no-header': route.path.includes('/login') || route.path === '/home' }">
       <router-view />
     </main>
   </div>
@@ -70,6 +70,16 @@ const goToHome = () => {
       &:hover {
         color: #2CD9FF;
       }
+    }
+  }
+  
+  .app-content {
+    /* ... 现有样式 ... */
+    
+    &.no-header {
+      /* 当没有顶部导航栏时，调整内容区域样式 */
+      padding-top: 0;
+      height: 100vh; /* 使内容区域占满整个视口高度 */
     }
   }
 }

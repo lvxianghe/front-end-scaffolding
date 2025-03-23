@@ -14,14 +14,25 @@ const service = axios.create({
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'
-    }
+    },
+    withCredentials: true // 确保所有请求都发送 cookie
 });
 // axios实例拦截请求
 service.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
+        // 优先使用 localStorage 中的 satoken
+        const satoken = localStorage.getItem('satoken');
+        if (satoken) {
+            // 添加到请求头
+            config.headers['satoken'] = satoken;
+            // 或者添加到 Cookie 头
+            // config.headers['Cookie'] = `satoken=${satoken}`;
+        } else {
+            // 如果没有 satoken，尝试使用普通 token
+            const token = localStorage.getItem('token');
+            if (token) {
+                config.headers['Authorization'] = `Bearer ${token}`;
+            }
         }
         return config;
     },
@@ -32,6 +43,13 @@ service.interceptors.request.use(
 // axios实例拦截响应
 service.interceptors.response.use(
     (response: AxiosResponse) => {
+        // 从自定义头部中提取 satoken
+        const satoken = response.headers['x-satoken'];
+        if (satoken) {
+            localStorage.setItem('satoken', satoken);
+            console.log('Saved satoken to localStorage:', satoken);
+        }
+        
         if (response.status === 200) {
             return response.data;
         }

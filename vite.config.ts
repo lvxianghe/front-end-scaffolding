@@ -80,6 +80,18 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
                     changeOrigin: true,
                     // 发起请求时将 '/api' 替换为 ''
                     rewrite: (path) => path.replace(/^\/api/, ''),
+                    configure: (proxy, options) => {
+                        proxy.on('proxyRes', (proxyRes, req, res) => {
+                            const cookies = proxyRes.headers['set-cookie'];
+                            if (cookies) {
+                                const satoken = cookies.find(cookie => cookie.includes('satoken='));
+                                if (satoken) {
+                                    // 在响应中添加自定义头部
+                                    proxyRes.headers['x-satoken'] = satoken.split(';')[0].replace('satoken=', '');
+                                }
+                            }
+                        });
+                    }
                 },
             },
         },

@@ -220,6 +220,17 @@ const handleLogin = async () => {
           localStorage.setItem('token', res.data)
         }
         
+        // 从 document.cookie 中提取 satoken
+        const cookies = document.cookie.split(';')
+        const satoken = cookies.find(cookie => cookie.trim().startsWith('satoken='))
+        if (satoken) {
+          const tokenValue = satoken.trim().substring('satoken='.length)
+          localStorage.setItem('satoken', tokenValue)
+          console.log('Saved satoken to localStorage:', tokenValue)
+        } else {
+          console.warn('satoken not found in cookies')
+        }
+        
         // 跳转到首页
         router.push('/home')
         ElMessage.success('登录成功')

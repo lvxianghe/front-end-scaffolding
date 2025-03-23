@@ -30,12 +30,12 @@ export function login(data: {
   loginType: number;
 }) {
   console.log('Login API called with data:', data);
-  console.trace('Login API call stack trace:');
   
   return request({
     url: '/auth/login',
     method: 'post',
-    data
+    data,
+    withCredentials: true // 确保请求发送和接收 cookies
   })
 }
 
