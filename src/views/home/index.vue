@@ -50,6 +50,16 @@
           <span>管理中心</span>
         </div>
       </div>
+      
+      <!-- 黑客帝国方块 - 放在管理中心下方 -->
+      <div class="grid-item matrix" @click="goToDigitalRain">
+        <div class="content">
+          <div class="matrix-canvas-container">
+            <canvas ref="matrixCanvas" class="matrix-canvas"></canvas>
+          </div>
+          <span>黑客帝国</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -63,7 +73,7 @@
   .grid-layout {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(3, 200px);
+    grid-template-rows: repeat(4, 200px); // 增加一行用于黑客帝国方块
     gap: 20px;
     max-width: 1400px;
     margin: 0 auto;
@@ -177,16 +187,163 @@
       grid-row: 3 / 4;
       background: linear-gradient(135deg, #3498db 0%, #5352ed 100%);
     }
+    
+    // 黑客帝国方块 - 占据1x1的格子，放在管理中心下方
+    .matrix {
+      grid-column: 1 / 2; // 只占第一列
+      grid-row: 4 / 5; // 放在第四行
+      background: #000; // 黑色背景
+      
+      .content {
+        position: relative;
+        
+        .matrix-canvas-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+        }
+        
+        span {
+          position: relative;
+          z-index: 2;
+          color: #0F0; // 绿色文字
+          text-shadow: 0 0 5px #0F0; // 发光效果
+        }
+      }
+    }
+  }
+}
+
+// 响应式调整
+@media (max-width: 768px) {
+  .home-container .grid-layout {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+    
+    .redbook {
+      grid-column: 1 / 3;
+      grid-row: 1 / 3;
+    }
+    
+    .chatgpt, .google, .wechat, .douyin {
+      grid-column: auto;
+      grid-row: auto;
+    }
+    
+    .admin {
+      grid-column: 1 / 3;
+      grid-row: auto;
+    }
+    
+    .matrix {
+      grid-column: 1 / 2;
+      grid-row: auto;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .home-container .grid-layout {
+    grid-template-columns: 1fr;
+    
+    .redbook, .admin, .matrix {
+      grid-column: 1;
+    }
   }
 }
 </style>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { Connection } from '@element-plus/icons-vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const router = useRouter()
 
+const matrixCanvas = ref(null)
+let matrixInterval = null
+
+onMounted(() => {
+  initMatrix()
+})
+
+onUnmounted(() => {
+  if (matrixInterval) {
+    clearInterval(matrixInterval)
+  }
+})
+
+const initMatrix = () => {
+  const canvas = matrixCanvas.value
+  if (!canvas) return // 防止canvas未加载完成
+  
+  const ctx = canvas.getContext('2d')
+  
+  // 设置画布大小为容器大小
+  const resizeCanvas = () => {
+    const container = canvas.parentElement
+    canvas.width = container.clientWidth
+    canvas.height = container.clientHeight
+  }
+  
+  // 初始调整大小
+  resizeCanvas()
+  
+  // 监听窗口大小变化
+  window.addEventListener('resize', resizeCanvas)
+  
+  // 黑客帝国效果的实现
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  const fontSize = 14
+  const columns = Math.floor(canvas.width / fontSize)
+  const drops = []
+  
+  // 初始化每列的Y位置
+  for (let i = 0; i < columns; i++) {
+    drops[i] = 1
+  }
+  
+  // 绘制黑客帝国效果
+  const draw = () => {
+    // 半透明黑色背景，形成拖尾效果
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    
+    // 设置文字颜色和字体
+    ctx.fillStyle = '#0F0' // 绿色
+    ctx.font = `${fontSize}px monospace`
+    
+    // 逐列绘制字符
+    for (let i = 0; i < drops.length; i++) {
+      // 随机选择一个字符
+      const text = characters[Math.floor(Math.random() * characters.length)]
+      
+      // 绘制字符
+      ctx.fillText(text, i * fontSize, drops[i] * fontSize)
+      
+      // 字符下落到底部后，有一定概率重新回到顶部
+      if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        drops[i] = 0
+      }
+      
+      // 递增Y位置
+      drops[i]++
+    }
+  }
+  
+  // 设置定时器，定期重绘
+  matrixInterval = setInterval(draw, 33) // 约30fps
+}
+
 const handleModuleClick = (module: string) => {
   router.push(`/${module}`)
+}
+
+// 跳转到数字雨效果页面
+const goToDigitalRain = () => {
+  router.push('/digital-rain')
 }
 </script>

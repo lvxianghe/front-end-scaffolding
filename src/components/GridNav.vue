@@ -61,13 +61,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { HomeFilled } from '@element-plus/icons-vue'
+import { HomeFilled, Promotion, ChatDotRound, Message, VideoPlay, Setting, Search } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
 const isCollapsed = ref(false)
+
+// 添加调试输出
+onMounted(() => {
+  console.log('GridNav mounted, route path:', route.path)
+})
+
+// 监听路由变化
+watch(() => route.path, (newPath) => {
+  console.log('Route changed to:', newPath)
+})
 
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value
@@ -90,7 +100,7 @@ const goToHome = () => {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  z-index: 2001;
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(10px);
   padding: 12px;
@@ -169,6 +179,15 @@ const goToHome = () => {
       &:active {
         transform: scale(0.98);
       }
+
+      /* 强制排序 */
+      &.home { order: 1; }
+      &.redbook { order: 2; }
+      &.chatgpt { order: 3; }
+      &.wechat { order: 4; }
+      &.douyin { order: 5; }
+      &.admin { order: 6; }
+      &.google { order: 7; }
     }
   }
 

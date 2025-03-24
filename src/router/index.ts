@@ -4,6 +4,8 @@ import 'nprogress/nprogress.css';
 import mainRoutes from './modules/main'
 import loginRouter from './modules/login'
 import homeRoutes from './modules/home'
+import digitalRainRoutes from './modules/digital-rain'
+import registerRouter from './modules/register'
 
 // 配置路由
 // const routes: Array<RouteRecordRaw> = [
@@ -33,15 +35,36 @@ const modules: Record<string, any> = import.meta.glob(['./modules/*.ts'], {
 });
 // 配置路由
 const routes: Array<RouteRecordRaw> = [
+  // 不使用布局组件，直接列出所有路由
   {
     path: '/',
     redirect: '/login'
   },
-  loginRouter,
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/login/index.vue')
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: () => import('@/views/login/index.vue'),
+    props: { isRegister: true }
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('@/views/admin/index.vue'),
+    meta: {
+      title: '管理中心',
+      icon: 'Setting'
+    }
+  },
   homeRoutes,
-  ...mainRoutes
+  ...mainRoutes,
+  digitalRainRoutes,
+  aboutRouter
 ];
-routes.push(aboutRouter);
 const router = createRouter({
     history: createWebHashHistory(),
     routes,

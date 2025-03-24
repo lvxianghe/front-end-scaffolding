@@ -46,3 +46,12 @@ export function getUserInfo() {
     method: 'get'
   })
 }
+
+// 在现有代码中添加注册函数
+export function register(data: any) {
+  return request({
+    url: '/auth/register',
+    method: 'post',
+    data
+  })
+}

@@ -1,45 +1,43 @@
 <template>
   <!-- 一般vue项目都会使用vue-router -->
   <!-- 所以我们这里直接写一个 router-view -->
-  <div class="app-container">
-    <!-- 顶部导航栏 - 在非登录页面和非首页显示 -->
-    <header v-if="!route.path.includes('/login') && route.path !== '/home'" class="app-header">
-      <div class="header-left">
-        <!-- 添加首页链接 - 在非home页面显示 -->
-        <div v-if="route.path !== '/home'" class="home-link" @click="goToHome">
-          <el-icon><HomeFilled /></el-icon>
-          <span>首页</span>
-        </div>
-      </div>
-      
-      <!-- 现有的顶部内容 -->
-      <div class="header-center">
-        <!-- ... 现有内容 ... -->
-      </div>
-      
-      <div class="header-right">
-        <!-- ... 现有内容 ... -->
-      </div>
-    </header>
-    
+  <div id="app">
     <!-- 页面内容 -->
-    <main class="app-content" :class="{ 'no-header': route.path.includes('/login') || route.path === '/home' }">
+    <main class="app-content" :class="{ 'no-header': route.path.includes('/login') || route.path.includes('/register') || route.path === '/home' || route.path === '/' || route.path === '/digital-rain' }">
       <router-view />
     </main>
+    
+    <!-- 根据路由条件显示导航栏 -->
+    <grid-nav v-if="shouldShowNav" class="app-main-nav" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router'
+import { ref, computed, watch } from 'vue'
 // 导入需要的图标
-import { HomeFilled } from '@element-plus/icons-vue'
+import { HomeFilled, Promotion, ChatDotRound, Message, VideoPlay, Setting, Search } from '@element-plus/icons-vue'
+import GridNav from '@/components/GridNav.vue'
+// 不要导入GlobalGridNav
 
 const router = useRouter()
 const route = useRoute()
 
+// 计算属性：根据当前路由决定是否显示导航栏
+const shouldShowNav = computed(() => {
+  // 在这些页面不显示导航栏
+  const hideNavRoutes = ['/login', '/register', '/home', '/', '/digital-rain']
+  return !hideNavRoutes.includes(route.path)
+})
+
 // 跳转到首页的方法
 const goToHome = () => {
   router.push('/home')
+}
+
+// 导航到指定页面
+const navigateTo = (path) => {
+  router.push(path)
 }
 </script>
 
@@ -51,25 +49,118 @@ const goToHome = () => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 20px;
+    padding: 0;
     height: 60px;
     background: #fff;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     
-    .home-link {
+    .header-left {
+      padding: 0 20px;
+      
+      .home-link {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        color: #6C7BFF;
+        font-weight: 500;
+        
+        .el-icon {
+          margin-right: 5px;
+        }
+        
+        &:hover {
+          color: #2CD9FF;
+        }
+      }
+    }
+    
+    .nav-menu {
       display: flex;
-      align-items: center;
-      cursor: pointer;
-      color: #6C7BFF;
-      font-weight: 500;
+      height: 100%;
       
-      .el-icon {
-        margin-right: 5px;
+      .nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0 20px;
+        height: 100%;
+        min-width: 100px;
+        cursor: pointer;
+        transition: all 0.3s;
+        position: relative;
+        color: #606266;
+        
+        .el-icon {
+          font-size: 24px;
+          margin-bottom: 4px;
+        }
+        
+        span {
+          font-size: 14px;
+        }
+        
+        &:hover {
+          background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        &.active {
+          color: #fff;
+        }
+        
+        &.home {
+          background: linear-gradient(135deg, #4B6EFF 0%, #2CD9FF 100%);
+          &.active, &:hover {
+            background: linear-gradient(135deg, #4B6EFF 0%, #2CD9FF 100%);
+          }
+        }
+        
+        &.redbook {
+          background: linear-gradient(135deg, #FF4A6B 0%, #FF7CAD 100%);
+          &.active, &:hover {
+            background: linear-gradient(135deg, #FF4A6B 0%, #FF7CAD 100%);
+          }
+        }
+        
+        &.chatgpt {
+          background: #2C3E50;
+          &.active, &:hover {
+            background: #2C3E50;
+          }
+        }
+        
+        &.wechat {
+          background: #07C160;
+          &.active, &:hover {
+            background: #07C160;
+          }
+        }
+        
+        &.douyin {
+          background: #333333;
+          &.active, &:hover {
+            background: #333333;
+          }
+        }
+        
+        &.admin {
+          background: linear-gradient(135deg, #4B6EFF 0%, #2CD9FF 100%);
+          &.active, &:hover {
+            background: linear-gradient(135deg, #4B6EFF 0%, #2CD9FF 100%);
+          }
+        }
+        
+        &.search {
+          background: linear-gradient(135deg, #13C2C2 0%, #5CDEDE 100%);
+          &.active, &:hover {
+            background: linear-gradient(135deg, #13C2C2 0%, #5CDEDE 100%);
+          }
+        }
       }
-      
-      &:hover {
-        color: #2CD9FF;
-      }
+    }
+    
+    .header-right {
+      padding: 0 20px;
     }
   }
   
