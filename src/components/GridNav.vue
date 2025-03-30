@@ -6,15 +6,15 @@
       </el-icon>
     </div>
     
-    <div class="grid-layout">
-      <div v-if="route.path !== '/home'" class="grid-item home" @click="goToHome">
+    <div class="nav-container">
+      <div v-if="route.path !== '/home'" class="nav-item home" @click="goToHome">
         <div class="content">
           <el-icon><HomeFilled /></el-icon>
           <span>首页</span>
         </div>
       </div>
       
-      <div class="grid-item redbook" @click="handleModuleClick('redbook')">
+      <div class="nav-item redbook" @click="handleModuleClick('redbook')">
         <div class="content">
           <el-icon><Promotion /></el-icon>
           <span>大红书</span>
@@ -22,35 +22,35 @@
         </div>
       </div>
 
-      <div class="grid-item chatgpt" @click="handleModuleClick('chatgpt')">
+      <div class="nav-item chatgpt" @click="handleModuleClick('chatgpt')">
         <div class="content">
           <el-icon><ChatDotRound /></el-icon>
           <span>ChatGPT</span>
         </div>
       </div>
 
-      <div class="grid-item wechat" @click="handleModuleClick('wechat')">
+      <div class="nav-item wechat" @click="handleModuleClick('wechat')">
         <div class="content">
           <el-icon><Message /></el-icon>
           <span>微信</span>
         </div>
       </div>
 
-      <div class="grid-item douyin" @click="handleModuleClick('douyin')">
+      <div class="nav-item douyin" @click="handleModuleClick('douyin')">
         <div class="content">
           <el-icon><VideoPlay /></el-icon>
           <span>抖音</span>
         </div>
       </div>
 
-      <div class="grid-item admin" @click="handleModuleClick('admin')">
+      <div class="nav-item admin" @click="handleModuleClick('admin')">
         <div class="content">
           <el-icon><Setting /></el-icon>
           <span>管理中心</span>
         </div>
       </div>
 
-      <div class="grid-item google" @click="handleModuleClick('google')">
+      <div class="nav-item google" @click="handleModuleClick('google')">
         <div class="content">
           <el-icon><Search /></el-icon>
           <span>搜索引擎</span>
@@ -108,21 +108,26 @@ const goToHome = () => {
   height: 100px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 
-  .grid-layout {
+  .nav-container {
     display: flex;
     gap: 12px;
     max-width: 1400px;
     margin: 0 auto;
     height: 100%;
-
-    .grid-item {
+    
+    .nav-item {
       flex: 1;
+      min-width: 110px; /* 设置最小宽度 */
       border-radius: 16px;
       cursor: pointer;
       transition: all 0.3s;
       position: relative;
       overflow: hidden;
       height: 100%;
+      
+      &.home {
+        background: linear-gradient(135deg, #6C7BFF 0%, #2CD9FF 100%);
+      }
       
       &.redbook {
         background: linear-gradient(135deg, #ff4757 0%, #ff6b81 100%);
@@ -146,10 +151,6 @@ const goToHome = () => {
 
       &.google {
         background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
-      }
-      
-      &.home {
-        background: linear-gradient(135deg, #6C7BFF 0%, #2CD9FF 100%);
       }
 
       .content {
@@ -179,15 +180,6 @@ const goToHome = () => {
       &:active {
         transform: scale(0.98);
       }
-
-      /* 强制排序 */
-      &.home { order: 1; }
-      &.redbook { order: 2; }
-      &.chatgpt { order: 3; }
-      &.wechat { order: 4; }
-      &.douyin { order: 5; }
-      &.admin { order: 6; }
-      &.google { order: 7; }
     }
   }
 
@@ -227,6 +219,24 @@ const goToHome = () => {
 
     .toggle-btn {
       transform: translate(-50%, 100%);
+    }
+  }
+}
+
+// 添加媒体查询以确保在较小屏幕上导航项也有合理宽度
+@media (max-width: 1200px) {
+  .grid-nav .nav-container .nav-item {
+    min-width: 90px;
+  }
+}
+
+@media (max-width: 900px) {
+  .grid-nav .nav-container {
+    flex-wrap: wrap;
+    
+    .nav-item {
+      min-width: 80px;
+      flex-basis: calc(25% - 12px);
     }
   }
 }

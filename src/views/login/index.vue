@@ -199,12 +199,17 @@
         <div v-if="isLogin" class="other-operations">
           <el-button class="side-btn forget-btn" @click="handleForgetPwd">
             <el-icon><Warning /></el-icon>
-            忘记密码？
+            忘记密码
           </el-button>
-          <el-button class="guest-btn" @click="handleGuestLogin">游客登录</el-button>
-          <el-button class="side-btn register-btn" @click="switchMode">
-            <span>注册账号</span>
-            <el-icon><ArrowRight /></el-icon>
+          
+          <el-button type="warning" class="guest-btn" @click="loginAsGuest">
+            <el-icon><Avatar /></el-icon>
+            游客登录
+          </el-button>
+          
+          <el-button class="side-btn register-btn" @click="isLogin = false">
+            <el-icon><Plus /></el-icon>
+            注册账号
           </el-button>
         </div>
         
@@ -228,7 +233,7 @@ import { login, register } from '@/api/user'
 import { ElMessage } from 'element-plus'
 import { 
   User, Lock, UserFilled, Iphone, Male, Female, 
-  ArrowLeft, ArrowRight, Check, Warning 
+  ArrowLeft, ArrowRight, Check, Warning, Avatar, Plus 
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -382,13 +387,13 @@ const handleLogin = async () => {
   }
 }
 
-// 游客登录处理函数
-const handleGuestLogin = () => {
-  // 设置游客身份标识
-  localStorage.setItem('userRole', 'guest')
-  
-  // 直接跳转到首页，而不是根路径
+// 游客登录
+const loginAsGuest = () => {
+  // 设置游客角色为普通用户而不是guest，跳过路由权限验证
+  localStorage.setItem('userRole', 'normal')
+  // 跳转到首页
   router.push('/home')
+  ElMessage.success('以游客身份登录成功')
 }
 
 // 注册处理
@@ -473,6 +478,42 @@ const registerRules = {
   phone: [
     { required: true, message: '请输入手机号码', trigger: 'blur' },
     { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码', trigger: 'blur' }
+  ]
+}
+
+// 密码登录表单验证规则
+const passwordRules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 4, max: 20, message: '用户名长度应为4-20个字符', trigger: 'blur' }
+  ],
+  password: [
+    { required: true, message: '请输入密码', trigger: 'blur' },
+    { min: 6, max: 20, message: '密码长度应为6-20个字符', trigger: 'blur' }
+  ]
+}
+
+// 验证码登录表单验证规则
+const captchaRules = {
+  phone: [
+    { required: true, message: '请输入手机号码或邮箱', trigger: 'blur' },
+    { 
+      validator: (rule, value, callback) => {
+        // 简单验证是手机号或邮箱
+        const phoneRegex = /^1[3-9]\d{9}$/
+        const emailRegex = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/
+        if (!phoneRegex.test(value) && !emailRegex.test(value)) {
+          callback(new Error('请输入正确的手机号码或邮箱'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
+  code: [
+    { required: true, message: '请输入验证码', trigger: 'blur' },
+    { pattern: /^\d{6}$/, message: '验证码为6位数字', trigger: 'blur' }
   ]
 }
 </script>

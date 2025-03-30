@@ -1,43 +1,136 @@
 <template>
   <!-- 一般vue项目都会使用vue-router -->
   <!-- 所以我们这里直接写一个 router-view -->
-  <div id="app">
-    <!-- 页面内容 -->
-    <main class="app-content" :class="{ 'no-header': route.path.includes('/login') || route.path.includes('/register') || route.path === '/home' || route.path === '/' || route.path === '/digital-rain' }">
-      <router-view />
-    </main>
-    
-    <!-- 根据路由条件显示导航栏 -->
-    <grid-nav v-if="shouldShowNav" class="app-main-nav" />
-  </div>
+  <el-config-provider :locale="locale">
+    <div id="app">
+      <!-- 页面内容 -->
+      <main class="app-content" :class="{ 'no-header': route.path.includes('/login') || route.path.includes('/register') || route.path === '/home' || route.path === '/' || route.path === '/digital-rain' || route.path === '/solar-system' || route.path === '/forbidden-city' }">
+        <router-view v-slot="{ Component }">
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </router-view>
+      </main>
+      
+      <!-- 根据路由条件显示导航栏 -->
+      <grid-nav v-if="shouldShowNav" class="app-main-nav" />
+      
+      <!-- 错误处理模态框 -->
+      <el-dialog
+        v-model="errorDialogVisible"
+        title="应用程序错误"
+        width="30%"
+        :before-close="resetError">
+        <div class="error-content">
+          <p>应用程序遇到了错误:</p>
+          <pre>{{ errorMessage }}</pre>
+          <p>您可以尝试重新加载页面或返回首页。</p>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="goToHome">返回首页</el-button>
+            <el-button type="primary" @click="reloadPage">重新加载</el-button>
+          </span>
+        </template>
+      </el-dialog>
+    </div>
+  </el-config-provider>
 </template>
 
 <script setup lang="ts">
 import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 // 导入需要的图标
 import { HomeFilled, Promotion, ChatDotRound, Message, VideoPlay, Setting, Search } from '@element-plus/icons-vue'
 import GridNav from '@/components/GridNav.vue'
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 // 不要导入GlobalGridNav
 
+const locale = zhCn
 const router = useRouter()
 const route = useRoute()
+const errorDialogVisible = ref(false)
+const errorMessage = ref('')
 
 // 计算属性：根据当前路由决定是否显示导航栏
 const shouldShowNav = computed(() => {
-  // 在这些页面不显示导航栏
-  const hideNavRoutes = ['/login', '/register', '/home', '/', '/digital-rain']
+  const hideNavRoutes = [
+    '/login', 
+    '/register', 
+    '/home', 
+    '/', 
+    '/digital-rain',
+    '/solar-system',
+    '/forbidden-city',
+    '/knowledge-graph',
+    '/lucky-draw',
+    '/bounty',
+    '/customer-profile',
+    '/leaderboard',
+    '/drag-drop'
+  ]
+  
+  // 如果当前路径在隐藏列表中，则返回false，否则返回true
   return !hideNavRoutes.includes(route.path)
 })
 
+// 全局错误处理
+const handleGlobalError = (event) => {
+  console.error('捕获到全局错误:', event)
+  errorMessage.value = event.message || '未知错误'
+  errorDialogVisible.value = true
+  
+  // 防止错误传播
+  event.preventDefault()
+  event.stopPropagation()
+}
+
+// 全局Promise错误处理
+const handleUnhandledRejection = (event) => {
+  console.error('捕获到未处理的Promise拒绝:', event)
+  errorMessage.value = event.reason?.message || '未处理的Promise错误'
+  errorDialogVisible.value = true
+  
+  // 防止错误传播
+  event.preventDefault()
+  event.stopPropagation()
+}
+
+// 生命周期挂载
+onMounted(() => {
+  // 添加全局错误处理
+  window.addEventListener('error', handleGlobalError, true)
+  window.addEventListener('unhandledrejection', handleUnhandledRejection)
+})
+
+// 生命周期卸载
+onUnmounted(() => {
+  // 移除全局错误处理
+  window.removeEventListener('error', handleGlobalError, true)
+  window.removeEventListener('unhandledrejection', handleUnhandledRejection)
+})
+
+// 重置错误状态
+const resetError = () => {
+  errorDialogVisible.value = false
+  errorMessage.value = ''
+}
+
 // 跳转到首页的方法
 const goToHome = () => {
+  resetError()
   router.push('/home')
 }
 
-// 导航到指定页面
-const navigateTo = (path) => {
+// 跳转到特定路径的方法
+const navigateTo = (path: string) => {
   router.push(path)
+}
+
+// 重新加载页面
+const reloadPage = () => {
+  resetError()
+  window.location.reload()
 }
 </script>
 
@@ -172,6 +265,21 @@ const navigateTo = (path) => {
       padding-top: 0;
       height: 100vh; /* 使内容区域占满整个视口高度 */
     }
+  }
+}
+
+.error-content {
+  text-align: center;
+  
+  pre {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow: auto;
+    margin: 10px 0;
+    text-align: left;
+    font-size: 12px;
   }
 }
 </style>
