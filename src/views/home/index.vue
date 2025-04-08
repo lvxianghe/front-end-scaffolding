@@ -15,6 +15,7 @@
         <div class="content">
           <el-icon><ChatDotRound /></el-icon>
           <span>ChatGPT</span>
+          <div class="description">智能AI助手</div>
         </div>
       </div>
 
@@ -23,6 +24,7 @@
         <div class="content">
           <el-icon><Message /></el-icon>
           <span>微信</span>
+          <div class="description">即时通讯工具</div>
         </div>
       </div>
 
@@ -31,6 +33,7 @@
         <div class="content">
           <el-icon><VideoPlay /></el-icon>
           <span>抖音</span>
+          <div class="description">短视频平台</div>
         </div>
       </div>
 
@@ -39,6 +42,7 @@
         <div class="content">
           <el-icon><Setting /></el-icon>
           <span>管理中心</span>
+          <div class="description">系统管理后台</div>
         </div>
       </div>
 
@@ -46,8 +50,8 @@
       <div class="grid-item google" @click="handleModuleClick('google')">
         <div class="content">
           <el-icon><Search /></el-icon>
-          <span>搜索引擎</span>
-          <div class="description">高仿 Google 搜索</div>
+          <span>Google</span>
+          <div class="description">搜索引擎</div>
         </div>
       </div>
       
@@ -256,6 +260,81 @@
           </div>
         </div>
       </div>
+
+      <!-- Excalidraw模块入口 -->
+      <div class="grid-item excalidraw" @click="navigateTo('/excalidraw')">
+        <div class="content">
+          <div class="module-icon">
+            <el-icon><Edit /></el-icon>
+          </div>
+          <span>Excalidraw</span>
+          <div class="description">在线绘图工具</div>
+        </div>
+      </div>
+
+      <!-- 监控运营体系模块 -->
+      <div class="grid-item monitoring" @click="navigateTo('/monitoring')">
+        <div class="content">
+          <div class="module-icon">
+            <el-icon><Monitor /></el-icon>
+          </div>
+          <span>监控运营体系</span>
+          <div class="description">数据中台监控系统</div>
+          <div class="monitoring-preview">
+            <div class="status-indicator">
+              <span class="dot success"></span>
+              <span class="count">128</span>
+            </div>
+            <div class="status-indicator">
+              <span class="dot warning"></span>
+              <span class="count">12</span>
+            </div>
+            <div class="status-indicator">
+              <span class="dot danger"></span>
+              <span class="count">3</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 指标系统模块 -->
+      <div class="grid-item metric-system" @click="handleModuleClick('metric-system')">
+        <div class="content">
+          <el-icon><DataAnalysis /></el-icon>
+          <span>指标系统</span>
+          <div class="description">指标配置与管理</div>
+        </div>
+      </div>
+
+      <!-- 修改计划模块和知识库模块的样式和位置 -->
+      <div class="grid-layout-row">
+        <!-- 计划模块入口 - 绿色系 -->
+        <div class="grid-item planner" @click="navigateTo('/planner')">
+          <div class="content">
+            <el-icon><Calendar /></el-icon>
+            <span>计划管理</span>
+            <div class="description">个人任务与计划</div>
+          </div>
+        </div>
+
+        <!-- 知识库模块入口 - 彩色系 -->
+        <div class="grid-item knowledge-base" @click="navigateTo('/knowledge-base')">
+          <div class="content">
+            <el-icon><Reading /></el-icon>
+            <span>知识库</span>
+            <div class="description">资料收集与管理</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 错误诊断中心入口 -->
+      <div class="grid-item error-center" @click="navigateTo('/error-center')">
+        <div class="content">
+          <el-icon><Warning /></el-icon>
+          <span>错误诊断中心</span>
+          <div class="description">错误展示与诊断</div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -269,7 +348,7 @@
   .grid-layout {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(6, 200px); // 增加到6行
+    grid-template-rows: repeat(7, 200px); // 增加到7行
     gap: 20px;
     max-width: 1400px;
     margin: 0 auto;
@@ -326,10 +405,9 @@
 
         .description {
           font-size: 14px;
-          opacity: 0.8;
+          opacity: 0;
           margin-top: 8px;
           transform: translateY(20px);
-          opacity: 0;
           transition: all 0.3s;
         }
       }
@@ -337,7 +415,61 @@
       &:hover {
         .description {
           transform: translateY(0);
-          opacity: 1;
+          opacity: 0.8;
+        }
+      }
+
+      &.excalidraw {
+        background: #ffffff;
+        border: 2px solid #d0d7e3;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        
+        .content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          
+          .module-icon {
+            background: #f8fafc;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            border: 1px solid #e6e8eb;
+            
+            .el-icon {
+              font-size: 40px;
+              color: #1971c2;
+            }
+          }
+          
+          span {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 8px;
+          }
+          
+          .description {
+            color: #64748b;
+            font-size: 14px;
+          }
+        }
+        
+        &:hover {
+          transform: translateY(-5px);
+          border-color: #1971c2;
+          box-shadow: 0 8px 24px rgba(25, 113, 194, 0.15);
+          
+          .module-icon {
+            background: #e7f5ff;
+            border-color: #1971c2;
+          }
         }
       }
     }
@@ -1401,6 +1533,103 @@
         text-shadow: 0 1px 1px rgba(0,0,0,0.3);
       }
     }
+
+    // 监控运营体系模块
+    .monitoring {
+      grid-column: 1 / 3; // 占据第1-2列
+      grid-row: 7 / 8;    // 放在第7行
+      background: linear-gradient(135deg, #1a2035 0%, #2d3a5d 100%);
+      
+      .monitoring-preview {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+        
+        .status-indicator {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          
+          .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            
+            &.success { background-color: #52c41a; }
+            &.warning { background-color: #faad14; }
+            &.danger { background-color: #f5222d; }
+          }
+          
+          .count {
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+
+  .grid-layout-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    
+    .grid-item {
+      flex: 1;
+    }
+  }
+
+  .planner {
+    background: linear-gradient(135deg, #52c41a, #237804);
+    
+    &:hover {
+      background: linear-gradient(135deg, #73d13d, #389e0d);
+    }
+    
+    .el-icon {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  .knowledge-base {
+    background: linear-gradient(135deg, #1890ff, #722ed1, #eb2f96);
+    
+    &:hover {
+      background: linear-gradient(135deg, #40a9ff, #9254de, #f759ab);
+    }
+    
+    .el-icon {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  /* 错误诊断中心样式 - 红色系 */
+  .error-center {
+    background: linear-gradient(135deg, #f56c6c, #c41d1d);
+    
+    &:hover {
+      background: linear-gradient(135deg, #f78989, #d63b3b);
+    }
+    
+    .el-icon {
+      color: rgba(255, 255, 255, 0.9);
+    }
+  }
+
+  /* 指标系统样式 - 蓝紫色渐变 */
+  .metric-system {
+    background: linear-gradient(135deg, #1890ff, #722ed1);
+    
+    &:hover {
+      background: linear-gradient(135deg, #40a9ff, #9254de);
+    }
+    
+    .el-icon {
+      color: rgba(255, 255, 255, 0.9);
+    }
+    
+    span, .description {
+      color: white;
+    }
   }
 }
 
@@ -1489,6 +1718,10 @@
       grid-column: 1 / 3; // 在中等屏幕上占据两列
       grid-row: auto; // 自动排列，确保不会与前面的元素重叠
     }
+
+    .grid-layout-row {
+      flex-direction: column;
+    }
   }
 }
 
@@ -1523,7 +1756,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { Connection, ChatDotRound, Message, VideoPlay, Setting, Search, Promotion, TrophyBase, UserFilled, Present, Money, Monitor, Place, School, Avatar, Operation } from '@element-plus/icons-vue'
+import { Connection, ChatDotRound, Message, VideoPlay, Setting, Search, Promotion, TrophyBase, UserFilled, Present, Money, Monitor, Place, School, Avatar, Operation, Edit, DataAnalysis, Calendar, Reading, Warning } from '@element-plus/icons-vue'
 import { ref, onMounted, onUnmounted } from 'vue'
 
 const router = useRouter()

@@ -67,7 +67,12 @@ const shouldShowNav = computed(() => {
     '/bounty',
     '/customer-profile',
     '/leaderboard',
-    '/drag-drop'
+    '/drag-drop',
+    '/excalidraw',
+    '/monitoring',
+    '/error-center',
+    '/planner',
+    '/knowledge-base'
   ]
   
   // 如果当前路径在隐藏列表中，则返回false，否则返回true

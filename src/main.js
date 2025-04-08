@@ -1,6 +1,10 @@
 import './assets/css/global.css'
 import { createApp } from 'vue'
 import App from './App.vue'
+// 导入 Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css';
+// 导入 Bootstrap JS
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
 const app = createApp(App)
 // 其他设置...
