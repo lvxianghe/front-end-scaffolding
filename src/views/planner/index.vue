@@ -18,7 +18,7 @@
         <div 
           class="goals-list" 
           :class="{ active: activeArea === 'goals' }"
-          @click.self="handleAreaClick('goals')"
+          @click="handleAreaClick('goals')"
         >
           <div class="list-header">
             <h2>目标</h2>
@@ -88,6 +88,11 @@
                         <el-icon v-else><Loading /></el-icon>
                         {{ getStatusText(item.status) }}
                       </span>
+                      <!-- 添加打卡进度显示 -->
+                      <span class="meta-item checkin-progress-item">
+                        <el-icon><Check /></el-icon>
+                        {{ getGoalDailyProgress(index) }}
+                      </span>
                   </div>
                     <div v-if="item.description" class="item-description">
                       {{ item.description }}
@@ -142,16 +147,35 @@
         <div 
           class="checkins-list" 
           :class="{ active: activeArea === 'checkins' }"
-          @click.self="handleAreaClick('checkins')"
+          @click="handleAreaClick('checkins')"
         >
           <div class="checkins-header">
             <h2>打卡区域</h2>
+            <div class="view-toggle">
+              <el-switch
+                v-model="showAllCheckins"
+                active-color="#409EFF"
+                inactive-color="#909399"
+                active-text="全部"
+                inactive-text="当前目标"
+                @change="handleViewToggle"
+              />
+            </div>
           </div>
           <div class="checkins-container">
-            <template v-if="selectedGoalIndex !== null">
-              <div class="checkins-grid">
+            <template v-if="showAllCheckins || selectedGoalIndex !== null">
+              <!-- 没有打卡点时的提示 -->
+              <div v-if="displayedCheckins.length === 0" class="no-checkins-tips">
+                <el-icon><Bell /></el-icon>
+                <p>{{ showAllCheckins ? '当前没有任何打卡点' : '当前目标还没有打卡点' }}</p>
+                <p v-if="!showAllCheckins">点击下方"添加打卡点"按钮创建一个新的打卡点</p>
+                <p v-else>请先选择或创建一个目标</p>
+              </div>
+              
+              <!-- 有打卡点时显示网格 -->
+              <div v-else class="checkins-grid">
                 <div 
-                  v-for="(checkin, cIndex) in goalItems[selectedGoalIndex].checkins"
+                  v-for="(checkin, cIndex) in displayedCheckins"
                   :key="checkin.id || cIndex"
                   class="checkin-item"
                   :class="{ 
@@ -163,70 +187,71 @@
                   @dragstart="dragStartCheckin(cIndex)"
                   @dragend="dragEndCheckin"
                   @dragover="dragOverCheckinHandler($event, cIndex)"
+                  @mousedown="handleCheckinMouseDown"
+                  @click="toggleCheckinCompletion(cIndex)"
                 >
-                  <div class="drag-handle checkin-drag-handle">
+                  <div class="checkin-drag-handle">
                     <el-icon><el-icon-menu /></el-icon>
                   </div>
-                  <div class="checkin-info" @click.stop="toggleCheckinCompletion(cIndex)">
-                    <div class="checkin-header">
-                      <h4>{{ checkin.title }}</h4>
-                      <div class="checkin-count" :style="getCheckinCountStyle(checkin)">{{ checkin.count }}天</div>
+                  <div class="checkin-info">
+                    <div class="checkin-title">
+                      {{ showAllCheckins ? getCheckInFullTitle(checkin) : checkin.title }}
                     </div>
-                    <div class="checkin-progress-container">
-                      <div 
-                        class="checkin-progress-bar"
-                        :style="{
-                          width: getProgressWidth(checkin.count),
-                          backgroundColor: getProgressColor(checkin)
-                        }"
-                      ></div>
-                    </div>
+                    <div v-if="checkin.description" class="checkin-desc">{{ checkin.description }}</div>
+                  </div>
+                  <div class="checkin-count" :style="getCheckinCountStyle(checkin)">
+                    {{ checkin.count }}
                   </div>
                   <div class="checkin-actions">
                     <el-button 
                       type="primary" 
-                      size="small" 
-                      circle
+                      circle 
+                      size="small"
                       @click.stop="editCheckin(cIndex)"
                     >
                       <el-icon><Edit /></el-icon>
                     </el-button>
                     <el-button 
                       type="danger" 
-                      size="small" 
                       circle 
+                      size="small"
                       @click.stop="deleteCheckin(cIndex)"
                     >
                       <el-icon><Delete /></el-icon>
                     </el-button>
                   </div>
                 </div>
-                
-                <!-- 没有打卡点时的提示 -->
-                <div v-if="goalItems[selectedGoalIndex].checkins.length === 0" class="no-checkins-tips">
-                  <el-icon><Bell /></el-icon>
-                  <p>当前目标还没有打卡点</p>
-                  <p>点击下方"添加打卡点"按钮创建一个新的打卡点</p>
-                </div>
-          </div>
-          
-              <!-- 将添加打卡点按钮移至底部 -->
-              <div class="add-checkin-container">
-              <el-button 
-                type="primary" 
-                  plain
-                size="small" 
-                  @click="addCheckin"
-              >
-                  <el-icon><Plus /></el-icon> 添加打卡点
-              </el-button>
-            </div>
+              </div>
             </template>
-            <div v-else class="no-selection">
-              <el-icon><ArrowLeft /></el-icon>
-              <p>请先选择左侧目标</p>
-              <p>或创建一个新的目标开始规划</p>
-                </div>
+            
+            <template v-else>
+              <!-- 未选择目标时的提示 -->
+              <div class="no-selection">
+                <el-icon><Select /></el-icon>
+                <p>请先选择一个目标</p>
+                <p>左侧选择一个目标后可以添加打卡点</p>
+              </div>
+            </template>
+            
+            <!-- 始终显示添加按钮，但在未选择目标时禁用 -->
+            <div class="add-checkin-container">
+              <el-tooltip
+                content="请先选择一个目标"
+                placement="top"
+                :disabled="!(selectedGoalIndex === null && !showAllCheckins)"
+                effect="light"
+              >
+                <el-button 
+                  type="primary" 
+                  plain
+                  size="small" 
+                  @click="handleAddCheckinClick"
+                  :disabled="selectedGoalIndex === null && !showAllCheckins"
+                >
+                  <el-icon><Plus /></el-icon> 添加打卡点
+                </el-button>
+              </el-tooltip>
+            </div>
           </div>
         </div>
       </div>
@@ -234,51 +259,81 @@
       <!-- 打卡热力图区域 -->
       <div class="heatmap-section">
         <div class="heatmap-header">
-          <h2>打卡热力图</h2>
+          <div class="heatmap-title">
+            <h2>打卡热力图</h2>
+            <div class="year-selector">
+              <el-button-group>
+                <el-button 
+                  type="primary" 
+                  :plain="true" 
+                  size="small"
+                  @click="changeYear(-1)"
+                >
+                  <el-icon><ArrowLeft /></el-icon>
+                </el-button>
+                <el-button type="primary" :plain="true" size="small">
+                  {{ currentYear }}年
+                </el-button>
+                <el-button 
+                  type="primary" 
+                  :plain="true" 
+                  size="small"
+                  @click="changeYear(1)"
+                  :disabled="isCurrentYear"
+                >
+                  <el-icon><ArrowRight /></el-icon>
+                </el-button>
+              </el-button-group>
+            </div>
+          </div>
           <div class="heatmap-legend">
             <div class="legend-item">
               <div class="legend-color" style="background-color: #ebedf0;"></div>
               <span>0次</span>
-      </div>
+            </div>
             <div class="legend-item">
               <div class="legend-color" style="background-color: #c6e48b;"></div>
               <span>1-2次</span>
-    </div>
+            </div>
             <div class="legend-item">
               <div class="legend-color" style="background-color: #7bc96f;"></div>
               <span>3-4次</span>
-        </div>
+            </div>
             <div class="legend-item">
               <div class="legend-color" style="background-color: #239a3b;"></div>
               <span>≥5次</span>
             </div>
-              </div>
-              </div>
+          </div>
+        </div>
         <div class="heatmap-container">
           <div class="month-labels">
             <div v-for="month in months" :key="month" class="month-label">{{ month }}</div>
-            </div>
+          </div>
           <div class="day-labels">
-            <div class="day-label">一</div>
-            <div class="day-label">三</div>
-            <div class="day-label">五</div>
-            <div class="day-label">日</div>
+            <div class="day-label">周一</div>
+            <div class="day-label">周二</div>
+            <div class="day-label">周三</div>
+            <div class="day-label">周四</div>
+            <div class="day-label">周五</div>
+            <div class="day-label">周六</div>
+            <div class="day-label">周日</div>
           </div>
           <div class="heatmap-grid">
             <div 
-              v-for="(day, index) in heatmapData" 
-                :key="index" 
+              v-for="day in heatmapData" 
+              :key="day.date"
               class="heatmap-cell"
-              :class="getCellClass(day.count)"
-              @mouseover="showTooltip($event, day)"
-              @mouseleave="hideTooltip"
-            ></div>
+              :class="[getCellClass(day.count)]"
+              :style="{
+                gridRow: day.dayOfWeek + 1,
+                gridColumn: 'auto'
+              }"
+            >
+              <div class="heatmap-tooltip">
+                <div class="tooltip-date">{{ day.date }}</div>
+                <div class="tooltip-count">{{ day.count }} 次打卡</div>
+                <div class="tooltip-total">总目标: {{ getTotalTarget(day.date) }} 次打卡</div>
               </div>
-          <div class="heatmap-tooltip" ref="tooltip" :style="tooltipStyle">
-            <div v-if="tooltipData">
-              <div class="tooltip-date">{{ tooltipData.date }}</div>
-              <div class="tooltip-count">{{ tooltipData.count }} 次打卡</div>
-              <div class="tooltip-total">总目标: {{ getTotalTarget(tooltipData.date) }} 次打卡</div>
             </div>
           </div>
         </div>
@@ -462,6 +517,30 @@
         </span>
       </template>
     </el-dialog>
+    
+    <!-- 将按钮容器移到页面底部固定位置 -->
+    <div class="fixed-bottom-buttons">
+      <div class="fixed-goals-button">
+        <el-button 
+          type="primary" 
+          icon="el-icon-plus" 
+          circle 
+          @click="addGoal" 
+          class="add-button"
+        ></el-button>
+      </div>
+      
+      <div class="fixed-checkins-button">
+        <el-button 
+          type="success" 
+          icon="el-icon-plus" 
+          circle 
+          @click="handleAddCheckinClick" 
+          :disabled="selectedGoalIndex === null || !goalItems.length"
+          class="add-button"
+        ></el-button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -471,7 +550,8 @@ import { useRouter } from 'vue-router'
 import { 
   Back, Plus, Edit, Delete, Check, Close, QuestionFilled, 
   CircleCheck, Timer, CircleClose, More, Refresh, 
-  Calendar, Clock, Loading, Star, ArrowLeft, Bell
+  Calendar, Clock, Loading, Star, ArrowLeft, Bell,
+  View, Monitor, Select, ArrowRight
 } from '@element-plus/icons-vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { usePlannerStore } from '@/stores/planner'
@@ -1119,7 +1199,22 @@ const deleteCheckin = async (index: number) => {
 const toggleCheckinCompletion = (index: number) => {
   if (selectedGoalIndex.value === null) return
   
-  const checkin = goalItems.value[selectedGoalIndex.value].checkins[index]
+  let goalIndex = selectedGoalIndex.value
+  let checkinIndex = index
+  
+  // 如果是在全部视图下
+  if (showAllCheckins.value) {
+    const checkin = displayedCheckins.value[index]
+    if (checkin.goalIndex !== undefined) {
+      // 获取真实的目标索引
+      goalIndex = checkin.goalIndex
+      // 在目标的打卡点列表中找到对应的打卡点索引
+      checkinIndex = goalItems.value[goalIndex].checkins.findIndex(c => c.id === checkin.id)
+      if (checkinIndex === -1) return // 未找到对应打卡点
+    }
+  }
+  
+  const checkin = goalItems.value[goalIndex].checkins[checkinIndex]
   
   // 反转完成状态
   checkin.completedToday = !checkin.completedToday
@@ -1139,9 +1234,12 @@ const toggleCheckinCompletion = (index: number) => {
 
 // 获取打卡卡片样式
 const getCheckinCardStyle = (checkin: Checkin) => {
-  const color = colorOptions[checkin.colorIndex % colorOptions.length]
+  // 确保即使没有colorIndex也能正常显示
+  const colorIndex = checkin.colorIndex !== undefined ? checkin.colorIndex : 0
+  const color = colorOptions[colorIndex % colorOptions.length]
   
   if (checkin.completedToday) {
+    // 已完成时显示颜色
     return {
       backgroundColor: color.lighter,
       color: '#303133',
@@ -1153,12 +1251,13 @@ const getCheckinCardStyle = (checkin: Checkin) => {
     }
   }
   
+  // 未完成时显示灰色
   return {
-    backgroundColor: color.lighter,
-    color: '#303133',
+    backgroundColor: '#f5f7fa',
+    color: '#606266',
     borderLeftWidth: '4px',
     borderLeftStyle: 'solid',
-    borderLeftColor: color.primary
+    borderLeftColor: '#dcdfe6'
   }
 }
 
@@ -1199,6 +1298,11 @@ const getProgressWidth = (count: number) => {
 
 // 设置活动区域
 const handleAreaClick = (area: 'goals' | 'checkins') => {
+  // 清除任何现有的焦点元素
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur();
+  }
+  
   activeArea.value = area
   
   // 根据区域执行相应的焦点逻辑
@@ -1206,7 +1310,7 @@ const handleAreaClick = (area: 'goals' | 'checkins') => {
     if (selectedGoalIndex.value === null && goalItems.value.length > 0) {
       selectedGoalIndex.value = 0
     }
-    // 如果有选中的目标条目，聚焦到它
+    // 如果有选中的目标条目，稍后聚焦到它
     if (selectedGoalIndex.value !== null) {
       nextTick(() => {
         const titleElements = document.querySelectorAll('.item-title')
@@ -1218,6 +1322,9 @@ const handleAreaClick = (area: 'goals' | 'checkins') => {
   } else if (area === 'checkins') {
     // 确保已选择目标
     activeArea.value = 'checkins'
+    
+    // 在切换到打卡区域时，重置可能存在的焦点状态
+    isClickInside.value = false
   }
 }
 
@@ -1340,8 +1447,8 @@ const handleKeyDown = (e: KeyboardEvent) => {
                          activeElement instanceof HTMLSelectElement ||
                          (activeElement && activeElement.getAttribute('contenteditable') === 'true');
   
-  // 如果在输入元素中，不处理快捷键
-  if (isInputElement) {
+  // 如果在输入元素中，不处理大多数快捷键，但保留部分功能键如Esc
+  if (isInputElement && e.key !== 'Escape' && e.key !== 'Esc') {
     return;
   }
 
@@ -1706,7 +1813,7 @@ const handleCheckinEnterInColor = (e: KeyboardEvent) => {
 
 // 打卡热力图相关状态
 const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-const heatmapData = ref<{date: string, count: number}[]>([])
+const heatmapData = ref<{date: string, count: number, dayOfWeek: number}[]>([])
 const tooltipData = ref<{date: string, count: number} | null>(null)
 const tooltipStyle = ref({
   display: 'none',
@@ -1717,21 +1824,52 @@ const tooltip = ref(null)
 
 // 生成过去一年的日期数据
 const generateHeatmapData = () => {
-  const data: {date: string, count: number}[] = []
-  const today = new Date()
-  const oneYearAgo = new Date()
-  oneYearAgo.setFullYear(today.getFullYear() - 1)
-  oneYearAgo.setDate(oneYearAgo.getDate() + 1) // 从去年今天的后一天开始
+  const data: {date: string, count: number, dayOfWeek: number}[] = []
+  const year = currentYear.value
   
-  // 生成日期范围
-  for (let d = new Date(oneYearAgo); d <= today; d.setDate(d.getDate() + 1)) {
+  // 获取当年第一天
+  const firstDay = new Date(year, 0, 1)
+  // 获取当年最后一天
+  const lastDay = new Date(year, 11, 31)
+  
+  // 当前处理的日期
+  const currentDate = new Date(firstDay)
+  
+  while (currentDate <= lastDay) {
+    // 获取当前日期是周几（0-6，0是周日）
+    let dayOfWeek = currentDate.getDay()
+    // 将周日的0转换为6，其他日期减1（使周一为0）
+    dayOfWeek = dayOfWeek === 0 ? 6 : dayOfWeek - 1
+    
     data.push({
-      date: format(d, 'yyyy-MM-dd'),
-      count: 0
+      date: format(currentDate, 'yyyy-MM-dd'),
+      count: 0,
+      dayOfWeek: dayOfWeek
     })
+    
+    // 移到下一天
+    currentDate.setDate(currentDate.getDate() + 1)
   }
   
   return data
+}
+
+// 检查今天是否有打卡
+const hasCheckinToday = () => {
+  const today = format(new Date(), 'yyyy-MM-dd')
+  let hasCheckin = false
+  
+  goalItems.value.forEach(goal => {
+    if (goal.checkins) {
+      goal.checkins.forEach(checkin => {
+        if (checkin.completedToday) {
+          hasCheckin = true
+        }
+      })
+    }
+  })
+  
+  return hasCheckin
 }
 
 // 根据打卡次数确定单元格的颜色类
@@ -1781,7 +1919,7 @@ const getTotalTarget = (date: string) => {
 
 // 更新热力图数据
 const updateHeatmapData = () => {
-  // 首先生成或重置热力图数据
+  // 生成或重置热力图数据
   heatmapData.value = generateHeatmapData()
   
   // 初始化日期到索引的映射
@@ -1797,16 +1935,10 @@ const updateHeatmapData = () => {
   goalItems.value.forEach(goal => {
     if (goal.checkins && goal.checkins.length > 0) {
       goal.checkins.forEach(checkin => {
-        // 假设这里有一个字段记录了打卡日期和次数
-        // 这里需要根据实际数据结构调整
-        // 简单示例：假设每个打卡点有一个 completedToday 字段表示今天完成了
         if (checkin.completedToday) {
           const today = format(new Date(), 'yyyy-MM-dd')
           dailyCheckins.set(today, (dailyCheckins.get(today) || 0) + 1)
         }
-        
-        // 实际应用中，应该有历史打卡记录，可以遍历这些记录更新热力图
-        // 这里仅做示例，仅记录今天的打卡情况
       })
     }
   })
@@ -1831,6 +1963,138 @@ onMounted(() => {
 watch(goalItems, () => {
   updateHeatmapData()
 }, { deep: true })
+
+// 添加打卡展示相关状态
+const showAllCheckins = ref(true) // 默认显示全部打卡条目
+
+// 处理视图切换
+const handleViewToggle = (value: boolean) => {
+  showAllCheckins.value = value
+  ElMessage.success(value ? '已切换到显示全部打卡点' : '已切换到仅显示当前目标打卡点')
+}
+
+// 计算属性：根据视图模式过滤要显示的打卡点
+const displayedCheckins = computed(() => {
+  if (showAllCheckins.value) {
+    // 显示所有目标的打卡点，并添加所属目标的标题信息
+    const allCheckins = []
+    goalItems.value.forEach((goal, goalIndex) => {
+      if (goal.checkins && goal.checkins.length > 0) {
+        // 为每个打卡点添加所属目标信息
+        goal.checkins.forEach(checkin => {
+          allCheckins.push({
+            ...checkin,
+            goalTitle: goal.title,
+            goalIndex: goalIndex
+          })
+        })
+      }
+    })
+    return allCheckins
+  } else {
+    // 只显示当前选中目标的打卡点
+    if (selectedGoalIndex.value === null) return []
+    
+    // 在当前目标模式下也添加目标信息，但不在UI中显示
+    const goalTitle = goalItems.value[selectedGoalIndex.value].title
+    return goalItems.value[selectedGoalIndex.value].checkins.map(checkin => ({
+      ...checkin,
+      goalTitle,
+      goalIndex: selectedGoalIndex.value
+    })) || []
+  }
+})
+
+// 获取目标的当天打卡进度
+const getGoalDailyProgress = (goalIndex: number) => {
+  if (goalIndex === null || goalIndex < 0 || goalIndex >= goalItems.value.length) return '0/0'
+  
+  const goal = goalItems.value[goalIndex]
+  if (!goal.checkins || goal.checkins.length === 0) return '0/0'
+  
+  // 统计已完成的打卡点数量
+  const completedCount = goal.checkins.filter(checkin => checkin.completedToday).length
+  // 总打卡点数量
+  const totalCount = goal.checkins.length
+  
+  return `${completedCount}/${totalCount}`
+}
+
+// 获取完整的打卡点标题（带目标前缀）
+const getCheckInFullTitle = (checkin: any) => {
+  // 如果已经有goalTitle属性（全部视图下），使用它作为前缀
+  if (checkin.goalTitle) {
+    return `[${checkin.goalTitle}] ${checkin.title}`
+  }
+  
+  // 如果没有goalTitle属性但有goalIndex属性
+  if (checkin.goalIndex !== undefined && goalItems.value[checkin.goalIndex]) {
+    return `[${goalItems.value[checkin.goalIndex].title}] ${checkin.title}`
+  }
+  
+  // 默认情况
+  return checkin.title
+}
+
+// 处理打卡卡片点击前的鼠标按下事件
+const handleCheckinMouseDown = () => {
+  // 确保设置活动区域为打卡区域
+  activeArea.value = 'checkins'
+  
+  // 清除所有可能的焦点元素
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.blur()
+  }
+  
+  // 防止事件冒泡
+  event.stopPropagation()
+}
+
+// 添加打卡按钮点击处理方法
+const handleAddCheckinClick = () => {
+  if (selectedGoalIndex === null && !showAllCheckins) {
+    ElMessage({
+      message: "请先选择一个目标才能添加打卡点",
+      type: "warning",
+      offset: 80
+    });
+    return;
+  }
+  addCheckin();
+}
+
+// 在 script setup 部分添加以下代码
+const currentYear = ref(new Date().getFullYear())
+const isCurrentYear = computed(() => currentYear.value === new Date().getFullYear())
+
+// 年份切换函数
+const changeYear = (delta: number) => {
+  currentYear.value += delta
+  updateHeatmapData()
+}
+
+// 计算月份标签的样式
+const getMonthLabelStyle = (monthIndex) => {
+  const year = currentYear.value
+  const firstDayOfMonth = new Date(year, monthIndex, 1)
+  const lastDayOfMonth = new Date(year, monthIndex + 1, 0)
+  const daysInMonth = lastDayOfMonth.getDate()
+  
+  // 获取月初是周几
+  let firstDayOfWeek = firstDayOfMonth.getDay()
+  firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1
+  
+  // 计算这个月需要多少列
+  const colsNeeded = Math.ceil((firstDayOfWeek + daysInMonth) / 7)
+  
+  // 计算宽度（每列13px = 10px格子 + 3px间距）
+  const width = colsNeeded * 13
+  
+  return {
+    width: `${width}px`,
+    flexShrink: 0
+  }
+}
 </script>
 
 <style lang="less" scoped>
@@ -1985,6 +2249,9 @@ watch(goalItems, () => {
         .list-header {
           background-color: #f0e6ff;
           border-bottom-color: #d1b3ff;
+          position: sticky;
+          top: 0;
+          z-index: 2;
           
           h2 {
             color: #6231c0;
@@ -1999,7 +2266,9 @@ watch(goalItems, () => {
           flex: 1;
           display: flex;
           flex-direction: column;
-          overflow: auto; /* 添加滚动条 */
+          overflow: auto;
+          position: relative;
+          height: calc(100% - 100px); /* 减去头部和底部的高度 */
         }
         
         .list-content {
@@ -2014,6 +2283,9 @@ watch(goalItems, () => {
           justify-content: center;
           background-color: #f9f0ff;
           border-top: 1px solid rgba(146, 84, 222, 0.1);
+          position: sticky;
+          bottom: 0;
+          z-index: 2;
         }
       }
       
@@ -2037,6 +2309,9 @@ watch(goalItems, () => {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          position: sticky;
+          top: 0;
+          z-index: 2;
           
           h2 {
             color: #2c70e0;
@@ -2052,7 +2327,42 @@ watch(goalItems, () => {
           display: flex;
           flex-direction: column;
           background-color: #f5f7fa;
-          overflow: auto; /* 添加滚动条 */
+          overflow: auto;
+          position: relative;
+          height: calc(100% - 100px); /* 减去头部和底部的高度 */
+          
+          .checkins-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 15px;
+            align-content: start;
+            min-height: 100%;
+          }
+          
+          .add-checkin-container {
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            background-color: #f5f7fa !important;
+            border-top: 1px solid rgba(64, 158, 255, 0.2) !important;
+            position: sticky;
+            bottom: 0;
+            z-index: 2;
+            margin-top: auto;
+          }
+          
+          /* 没有打卡点时的提示样式 */
+          .no-checkins-tips, .no-selection {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
+            padding: 20px;
+          }
         }
       }
     }
@@ -2066,19 +2376,28 @@ watch(goalItems, () => {
   border-radius: 8px;
   padding: 20px;
   margin-bottom: 40px;
-  height: 300px; /* 固定高度 */
   
   .heatmap-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-  
-    h2 {
-      font-size: 16px;
-      margin: 0;
-      font-weight: 600;
-      color: #303133;
+    
+    .heatmap-title {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      
+      h2 {
+        font-size: 16px;
+        margin: 0;
+        font-weight: 600;
+        color: #303133;
+      }
+    }
+    
+    .year-selector {
+      margin-left: 15px;
     }
     
     .heatmap-legend {
@@ -2107,114 +2426,99 @@ watch(goalItems, () => {
   
   .heatmap-container {
     position: relative;
-    display: flex;
-    height: calc(100% - 40px);
-    padding-top: 25px;
+    padding-top: 8px;  // 从10px减少到8px
+    padding-left: 30px;
+    overflow-x: auto;
+    overflow-y: visible;
     
     .month-labels {
-      position: absolute;
+      position: sticky;
       top: 0;
       left: 30px;
       right: 0;
       display: flex;
-      justify-content: space-between;
+      margin-bottom: 2px;  // 从3px减少到2px
       
       .month-label {
+        flex: 1;
+        text-align: center;
         font-size: 12px;
         color: #909399;
       }
     }
     
     .day-labels {
+      position: absolute;
+      left: 0;
+      top: 24px;  // 只调整这个值
       display: flex;
       flex-direction: column;
+      height: 91px;
       justify-content: space-between;
-      padding-right: 10px;
-      margin-top: 6px;
       
       .day-label {
         font-size: 12px;
         color: #909399;
-        height: 15px;
-        line-height: 15px;
         text-align: right;
+        padding-right: 8px;
+        height: 10px;
+        line-height: 10px;
       }
     }
     
     .heatmap-grid {
-      flex: 1;
       display: grid;
-      grid-template-columns: repeat(53, 1fr);
-      grid-template-rows: repeat(7, 1fr);
-      grid-gap: 3px;
-      align-content: start;
+      grid-template-rows: repeat(7, 10px);
+      grid-auto-flow: column;
+      gap: 3px;
       
       .heatmap-cell {
-        width: 14px;
-        height: 14px;
+        width: 10px;
+        height: 10px;
         border-radius: 2px;
-        transition: all 0.2s;
-      
+        position: relative;
+        transition: all 0.3s;
+        
+        &.level-0 { background-color: #ebedf0; }
+        &.level-1 { background-color: #c6e48b; }
+        &.level-2 { background-color: #7bc96f; }
+        &.level-3 { background-color: #239a3b; }
+        
         &:hover {
           transform: scale(1.2);
+          z-index: 10;
+          
+          .heatmap-tooltip {
+            display: block;
+          }
         }
         
-        &.level-0 {
-          background-color: #ebedf0;
+        .heatmap-tooltip {
+          display: none;
+          position: absolute;
+          bottom: calc(100% + 5px);
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: rgba(0, 0, 0, 0.75);
+          color: white;
+          padding: 6px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          white-space: nowrap;
+          z-index: 100;
+          pointer-events: none;
+          
+          &::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 4px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.75) transparent transparent transparent;
+          }
         }
-        
-        &.level-1 {
-          background-color: #c6e48b;
-        }
-        
-        &.level-2 {
-          background-color: #7bc96f;
-        }
-        
-        &.level-3 {
-          background-color: #239a3b;
-        }
-      }
-    }
-    
-    .heatmap-tooltip {
-      position: absolute;
-      display: none;
-      background-color: #fff;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
-      border-radius: 4px;
-      padding: 8px 12px;
-      font-size: 12px;
-      color: #606266;
-      z-index: 100;
-      transition: all 0.2s;
-      white-space: nowrap;
-      
-      &:after {
-        content: '';
-        position: absolute;
-        bottom: -5px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 0;
-        border-left: 5px solid transparent;
-        border-right: 5px solid transparent;
-        border-top: 5px solid #fff;
-      }
-      
-      .tooltip-date {
-        font-weight: bold;
-        margin-bottom: 3px;
-      }
-      
-      .tooltip-count {
-        color: #409EFF;
-      }
-      
-      .tooltip-total {
-        margin-top: 3px;
-        color: #909399;
       }
     }
   }
@@ -2431,19 +2735,23 @@ watch(goalItems, () => {
 /* 打卡点样式 */
 .checkins-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  padding: 10px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 15px;
+  align-content: start;
+  min-height: 100%;
 }
 
 .checkin-item {
   display: flex;
   align-items: center;
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 12px 15px;
   cursor: pointer;
   transition: all 0.25s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  min-height: 46px;
+  position: relative;
   
   &:hover {
     transform: translateX(3px);
@@ -2461,9 +2769,10 @@ watch(goalItems, () => {
   }
   
   .checkin-drag-handle {
-    margin-right: 6px;
+    margin-right: 12px;
     color: #909399;
     opacity: 0.7;
+    cursor: grab;
     
     &:hover {
       opacity: 1;
@@ -2473,47 +2782,45 @@ watch(goalItems, () => {
   .checkin-info {
     flex: 1;
     min-width: 0;
-    cursor: pointer;
     
-    .checkin-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      
-      h4 {
-        font-size: 15px;
-        font-weight: 500;
-        margin: 0;
-        color: #303133;
-      }
-      
-      .checkin-count {
-        font-size: 12px;
-        color: white;
-        padding: 2px 8px;
-        border-radius: 10px;
-        font-weight: 600;
-      }
-    }
-    
-    .checkin-progress-container {
-      height: 8px;
-      background-color: rgba(0, 0, 0, 0.1);
-      border-radius: 4px;
+    .checkin-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #303133;
+      white-space: nowrap;
       overflow: hidden;
-      
-      .checkin-progress-bar {
-        height: 100%;
-        border-radius: 4px;
-        transition: width 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-      }
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
     }
+    
+    .checkin-desc {
+      font-size: 12px;
+      color: #909399;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  
+  .checkin-count {
+    font-size: 12px;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin: 0 12px;
+    min-width: 24px;
+    text-align: center;
   }
   
   .checkin-actions {
     display: flex;
-    gap: 5px;
+    gap: 8px;
+    margin-left: 4px;
+    
+    .el-button {
+      transform: scale(0.9);
+    }
   }
 }
 
@@ -2553,7 +2860,399 @@ watch(goalItems, () => {
   padding: 15px;
   display: flex;
   justify-content: center;
-  border-top: 1px solid #EBEEF5;
+  align-items: center;
+  height: 60px; /* 统一设置高度 */
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.add-item-container {
+  background-color: #f9f0ff;
+  border-top: 1px solid rgba(146, 84, 222, 0.1);
+}
+
+.add-checkin-container {
+  background-color: #f5f7fa !important;
+  border-top: 1px solid rgba(64, 158, 255, 0.2) !important;
   margin-top: auto;
+}
+
+/* 切换按钮样式 */
+.view-toggle {
+  display: flex;
+  align-items: center;
+}
+
+/* 目标标签样式 */
+/* .goal-tag {
+  position: absolute;
+  top: -8px;
+  right: 10px;
+  background-color: rgba(64, 158, 255, 0.1);
+  color: #409EFF;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: 1px solid rgba(64, 158, 255, 0.2);
+} */
+
+/* 修改打卡项样式，不再需要为标签留出上方空间 */
+.checkin-item {
+  position: relative;
+  /* 移除多余的顶部内边距，因为不再显示标签 */
+  /* padding-top: 15px; */
+  
+  /* 其他原有样式保持不变 */
+}
+
+/* 打卡进度样式 */
+.checkin-progress-item {
+  .el-icon {
+    color: #67C23A;
+  }
+  font-weight: 500;
+}
+
+.checkins-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: auto;
+  
+  .no-checkins-tips, .no-selection {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    color: #909399;
+    padding: 20px;
+    
+    .el-icon {
+      font-size: 32px;
+      margin-bottom: 15px;
+      color: #c0c4cc;
+    }
+    
+    p {
+      margin: 5px 0;
+      
+      &:first-of-type {
+        font-weight: 500;
+        font-size: 15px;
+        margin-bottom: 8px;
+      }
+      
+      &:last-of-type {
+        font-size: 13px;
+        opacity: 0.8;
+      }
+    }
+  }
+  
+  .checkins-grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 15px;
+    min-height: 0;
+  }
+  
+  .add-checkin-container {
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid #EBEEF5;
+    background-color: #fff;
+  }
+}
+
+/* 自定义提示消息样式 */
+:deep(.checkin-warning-message) {
+  min-width: 280px;
+  padding: 12px 15px;
+  border-radius: 6px;
+  background-color: #fdf6ec;
+  border: 1px solid #faecd8;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  
+  .el-message__content {
+    color: #e6a23c;
+    font-weight: 500;
+  }
+}
+
+// 找到添加按钮的容器样式部分并修改
+.button-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  padding: 10px 15px;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  width: auto;
+  margin: 0 auto;
+}
+
+// 目标区域的按钮容器
+.goals-button-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  padding: 10px 15px;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+// 打卡区域的按钮容器
+.checkins-button-container {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  padding: 10px 15px;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+// 通用的固定添加按钮容器样式
+.fixed-button-area {
+  position: sticky;
+  bottom: 20px;
+  z-index: 10;
+  padding: 10px 0;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 固定在底部的按钮容器 */
+.fixed-bottom-buttons {
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 30px;
+  z-index: 1000;
+  pointer-events: none; /* 允许点击按钮下方的内容 */
+}
+
+.fixed-goals-button,
+.fixed-checkins-button {
+  pointer-events: auto; /* 恢复按钮的点击能力 */
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 5px;
+}
+
+.add-button {
+  transform: scale(1.2);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: scale(1.3);
+  }
+}
+
+/* 目标区域按钮容器 */
+.goals-panel .button-container {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 10px 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 10;
+  margin: 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 打卡区域按钮容器 */
+.checkins-panel .button-container {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 10px 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 10;
+  margin: 0;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* 为面板添加相对定位，作为按钮容器的参考 */
+.goals-panel, .checkins-panel {
+  position: relative;
+  padding-bottom: 60px; /* 为固定在底部的按钮留出空间 */
+}
+
+/* 面板内容区域可滚动 */
+.panel-content {
+  max-height: calc(100% - 60px);
+  overflow-y: auto;
+  padding-bottom: 10px;
+}
+
+/* 面板布局样式 */
+.goals-panel, .checkins-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* 确保内容不溢出 */
+}
+
+.panel-header {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto; /* 内容区域可滚动 */
+  padding: 15px;
+}
+
+.panel-footer {
+  padding: 10px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 2;
+  position: relative; /* 确保相对定位 */
+  display: flex;
+  justify-content: center;
+}
+
+.button-container {
+  text-align: center;
+}
+
+.add-button {
+  transition: all 0.3s;
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+/* 面板布局样式 - 确保在style部分定义 */
+.planner-layout {
+  display: flex;
+  height: 100%;
+  gap: 20px;
+}
+
+.goals-panel, .checkins-panel, .details-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden; /* 确保内容不溢出 */
+  flex: 1;
+  position: relative;
+}
+
+.panel-header {
+  padding: 12px 15px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+  
+  h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.panel-content {
+  flex: 1;
+  overflow-y: auto; /* 内容区域可滚动 */
+  padding: 15px;
+  padding-bottom: 70px; /* 为底部按钮留出空间 */
+}
+
+.panel-footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(5px);
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+}
+
+.button-container {
+  text-align: center;
+}
+
+.add-button {
+  transition: all 0.3s;
+  
+  &:hover {
+    transform: scale(1.1);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  }
 }
 </style> 

@@ -203,18 +203,31 @@
             <h2>知识点详述</h2>
           </div>
           <div class="details-content">
-            <el-input
-              v-if="selectedItemIndex !== null && selectedPointIndex !== null"
-              v-model="knowledgeItems[selectedItemIndex].points[selectedPointIndex].details"
-              type="textarea"
-              placeholder="请输入详细内容"
-              :rows="18"
-              class="details-input"
-              @input="saveKnowledgeItems"
-              @focus="setActiveArea('details')"
-              @click.stop="activeArea = 'details'"
-              ref="detailsInputRef"
-            />
+            <template v-if="selectedItemIndex !== null && selectedPointIndex !== null">
+              <div 
+                v-if="!isDetailsEditing" 
+                class="details-view"
+                tabindex="0"
+                @keydown.enter.prevent="startDetailsEditing"
+                @click="setActiveArea('details')"
+                ref="detailsViewRef"
+              >
+                {{ knowledgeItems[selectedItemIndex].points[selectedPointIndex].details || '暂无内容，按 Enter 键开始编辑' }}
+              </div>
+              <!-- 编辑模式下的输入框 -->
+              <el-input
+                v-else
+                v-model="knowledgeItems[selectedItemIndex].points[selectedPointIndex].details"
+                type="textarea"
+                :rows="18"
+                class="details-input"
+                @input="saveKnowledgeItems"
+                @keydown.esc.prevent="endDetailsEditing"
+                @keydown.enter.stop
+                ref="detailsInputRef"
+                @blur="checkSaveDetails"
+              />
+            </template>
             <div v-else class="no-selection">
               请选择知识点
             </div>
@@ -437,6 +450,7 @@ const dragItem = ref<number | null>(null) // 新增：当前拖拽的知识索�
 const dragPoint = ref<number | null>(null) // 新增：当前拖拽的知识点索引
 const dragOverItem = ref<number | null>(null) // 新增：拖拽悬停的知识索引
 const dragOverPoint = ref<number | null>(null) // 新增：拖拽悬停的知识点索引
+const isDetailsEditing = ref(false) // 新增：控制详述区域是否处于编辑状态
 
 // 错误处理相关
 const errorDialogVisible = ref(false)
@@ -964,8 +978,8 @@ const setActiveArea = (area: 'list' | 'summary' | 'details') => {
   // 如果活动区域没有变化，则不需要执行焦点切换
   if (activeArea.value === area) return;
   
-  // 旧区域
-  const oldArea = activeArea.value;
+  // 先清除所有焦点
+  clearAllFocus();
   
   // 设置新区域
   activeArea.value = area;
@@ -996,17 +1010,18 @@ const setActiveArea = (area: 'list' | 'summary' | 'details') => {
           (titleElements[selectedPointIndex.value] as HTMLElement).focus();
         }
       } else if (area === 'details' && selectedItemIndex.value !== null && selectedPointIndex.value !== null) {
-        // 聚焦到详情输入框
-        if (detailsInputRef.value) {
-          const inputEl = detailsInputRef.value.$el.querySelector('textarea');
-          if (inputEl) {
-            inputEl.focus();
-            console.log('已聚焦到详情输入框');
-          } else {
-            console.warn('无法找到详情输入框元素');
+        // 如果是编辑状态，聚焦到输入框；否则聚焦到查看视图
+        if (isDetailsEditing.value) {
+          if (detailsInputRef.value) {
+            const textarea = detailsInputRef.value.$el.querySelector('textarea');
+            if (textarea) {
+              textarea.focus();
+            }
           }
         } else {
-          console.warn('detailsInputRef未设置');
+          if (detailsViewRef.value) {
+            detailsViewRef.value.focus();
+          }
         }
       }
     } catch (error) {
@@ -1019,63 +1034,11 @@ const setActiveArea = (area: 'list' | 'summary' | 'details') => {
 const handleAreaClick = (area: 'list' | 'summary' | 'details') => {
   console.log('点击了空白区域:', area);
   
+  // 先清除所有焦点
+  clearAllFocus();
+  
   // 设置活动区域
-  activeArea.value = area;
-  
-  // 主动清除所有焦点 - 更彻底的方法
-  document.activeElement instanceof HTMLElement && document.activeElement.blur();
-  
-  // 清除所有可能被选中的文本
-  if (window.getSelection) {
-    window.getSelection()?.removeAllRanges();
-  }
-  
-  // 根据区域执行相应的焦点逻辑
-  if (area === 'list') {
-    if (selectedItemIndex.value === null && knowledgeItems.value.length > 0) {
-      selectedItemIndex.value = 0;
-    }
-    // 如果有选中的知识条目，聚焦到它
-    if (selectedItemIndex.value !== null) {
-      nextTick(() => {
-        const titleElements = document.querySelectorAll('.item-title');
-        if (titleElements[selectedItemIndex.value]) {
-          (titleElements[selectedItemIndex.value] as HTMLElement).focus();
-        }
-      });
-    }
-  } else if (area === 'summary') {
-    // 确保已经选择了知识
-    if (selectedItemIndex.value !== null) {
-      // 如果没有选中知识点但有知识点，则选中第一个
-      if (selectedPointIndex.value === null && knowledgeItems.value[selectedItemIndex.value].points.length > 0) {
-        selectedPointIndex.value = 0;
-      }
-      
-      // 如果有选中的知识点，聚焦到它
-      if (selectedPointIndex.value !== null) {
-        nextTick(() => {
-          const titleElements = document.querySelectorAll('.point-title');
-          if (titleElements[selectedPointIndex.value]) {
-            (titleElements[selectedPointIndex.value] as HTMLElement).focus();
-          }
-        });
-      }
-    }
-  } else if (area === 'details') {
-    // 确保已经选择了知识和知识点
-    if (selectedItemIndex.value !== null && selectedPointIndex.value !== null) {
-      // 聚焦到详情输入框
-      nextTick(() => {
-        if (detailsInputRef.value) {
-          const inputEl = detailsInputRef.value.$el.querySelector('textarea');
-          if (inputEl) {
-            inputEl.focus();
-          }
-        }
-      });
-    }
-  }
+  setActiveArea(area);
 }
 
 // 在document上添加点击事件以清除焦点
@@ -1133,17 +1096,21 @@ const handleKeyDown = (e: KeyboardEvent) => {
   
   // Enter键：根据当前区域执行不同操作
   if (e.key === 'Enter' && !e.ctrlKey && !e.altKey && !e.shiftKey && !e.metaKey) {
-    e.preventDefault()
+    // 如果在编辑状态，不阻止默认行为（允许换行）
+    if (isDetailsEditing.value) {
+      return;
+    }
     
+    e.preventDefault();
     // 根据当前选中区域进入编辑模式
     if (activeArea.value === 'list' && selectedItemIndex.value !== null) {
-      // 确保在知识区域选择了一个知识
-      startEditingTitle(selectedItemIndex.value)
+      startEditingTitle(selectedItemIndex.value);
     } else if (activeArea.value === 'summary' && selectedItemIndex.value !== null && selectedPointIndex.value !== null) {
-      // 确保在知识点区域选择了一个知识点
-      startEditingPointTitle(selectedPointIndex.value)
+      startEditingPointTitle(selectedPointIndex.value);
+    } else if (activeArea.value === 'details' && !isDetailsEditing.value) {
+      startDetailsEditing();
     }
-    return
+    return;
   }
   
   // 上下箭头切换当前区域内的条目
@@ -1201,19 +1168,19 @@ const handleKeyDown = (e: KeyboardEvent) => {
   // 左右箭头切换区域
   if (e.key === 'ArrowLeft') {
     e.preventDefault()
-    if (activeArea.value === 'details') {
-      setActiveArea('summary')
+    if (activeArea.value === 'details' && !isDetailsEditing.value) {
+      setActiveArea('summary');
     } else if (activeArea.value === 'summary') {
-      setActiveArea('list')
+      setActiveArea('list');
     }
   }
   
   if (e.key === 'ArrowRight') {
     e.preventDefault()
     if (activeArea.value === 'list') {
-      setActiveArea('summary')
-    } else if (activeArea.value === 'summary') {
-      setActiveArea('details')
+      setActiveArea('summary');
+    } else if (activeArea.value === 'summary' && !isDetailsEditing.value) {
+      setActiveArea('details');
     }
   }
   
@@ -1277,6 +1244,11 @@ const clearAllFocus = () => {
     document.querySelectorAll('.point-title').forEach(el => {
       if (el instanceof HTMLElement) el.blur();
     });
+    
+    // 详情视图
+    if (detailsViewRef.value) {
+      detailsViewRef.value.blur();
+    }
     
     // 详情输入框
     if (detailsInputRef.value) {
@@ -1505,6 +1477,53 @@ const handleDragOverPoint = (e: DragEvent, index: number) => {
   e.preventDefault();
   dragOverPoint.value = index;
 }
+
+// 开始编辑详述内容
+const startDetailsEditing = () => {
+  if (selectedItemIndex.value !== null && selectedPointIndex.value !== null) {
+    isDetailsEditing.value = true;
+    activeArea.value = 'details';
+    
+    // 等待 DOM 更新后聚焦到输入框并将光标移到末尾
+    nextTick(() => {
+      if (detailsInputRef.value) {
+        const textarea = detailsInputRef.value.$el.querySelector('textarea');
+        if (textarea) {
+          textarea.focus();
+          // 将光标移到文本末尾
+          const length = textarea.value.length;
+          textarea.setSelectionRange(length, length);
+        }
+      }
+    });
+  }
+}
+
+// 结束编辑详述内容
+const endDetailsEditing = () => {
+  isDetailsEditing.value = false;
+  saveKnowledgeItems();
+  
+  // 退出编辑模式后重新聚焦到查看模式
+  nextTick(() => {
+    if (detailsViewRef.value) {
+      detailsViewRef.value.focus();
+    }
+  });
+}
+
+// 检查并保存详述内容
+const checkSaveDetails = () => {
+  // 延迟执行，避免与其他事件冲突
+  setTimeout(() => {
+    if (isDetailsEditing.value) {
+      endDetailsEditing();
+    }
+  }, 200);
+}
+
+// 在 script setup 中添加新的 ref
+const detailsViewRef = ref<HTMLElement | null>(null)
 </script>
 
 <style lang="less" scoped>
@@ -2031,13 +2050,38 @@ const handleDragOverPoint = (e: DragEvent, index: number) => {
           overflow-y: auto;
           background-color: #fcf5ff;
           
+          .details-view {
+            flex: 1;
+            padding: 12px;
+            background-color: #ffffff;
+            border: 1px solid #d1b3ff;
+            border-radius: 4px;
+            min-height: 300px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            outline: none;
+            cursor: text;
+            color: #606266;
+            
+            &:empty::before {
+              content: '暂无内容，按 Enter 键开始编辑';
+              color: #909399;
+              font-style: italic;
+            }
+            
+            &:focus {
+              border-color: #906de4;
+              box-shadow: 0 0 0 1px #906de4 inset;
+            }
+          }
+          
           .details-input {
             flex: 1;
             
             .el-textarea__wrapper {
               background-color: #ffffff;
               border: 1px solid #d1b3ff;
-              height: 100%; // 确保文本区域填满容器
+              height: 100%;
               
               &.is-focus {
                 box-shadow: 0 0 0 1px #906de4 inset;
@@ -2045,8 +2089,8 @@ const handleDragOverPoint = (e: DragEvent, index: number) => {
             }
             
             :deep(.el-textarea__inner) {
-              height: 100%; // 增加文本输入框的高度
-              min-height: 300px; // 设置最小高度
+              height: 100%;
+              min-height: 300px;
             }
           }
           
