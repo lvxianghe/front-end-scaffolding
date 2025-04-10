@@ -21,7 +21,7 @@
       <div class="grid-item redbook" @click="handleModuleClick('redbook')">
         <div class="content">
           <el-icon><Promotion /></el-icon>
-          <span>小红书</span>
+          <span>大红书</span>
           <div class="description">分享生活，发现美</div>
         </div>
       </div>
@@ -598,46 +598,7 @@
     .douyin {
       grid-column: 3 / 5; // 只占第3-4列，不再占据整行
       grid-row: 7 / 8; // 在大红书上方
-      background: linear-gradient(135deg, #121212, #2d2d2d); // 抖音特有的黑色渐变
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      border: none;
-      
-      .content {
-        .el-icon {
-          color: #fff;
-          font-size: 42px;
-          margin-bottom: 14px;
-          background: linear-gradient(90deg, #fe2c55, #25f4ee);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-        }
-        
-        span {
-          color: #fff;
-          font-size: 20px;
-          font-weight: 600;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        
-        .description {
-          color: rgba(255, 255, 255, 0.85);
-          font-size: 14px;
-          margin-top: 6px;
-          transform: translateY(0);
-          opacity: 0.85;
-        }
-      }
-      
-      &:hover {
-        transform: translateY(-5px);
-        background: linear-gradient(135deg, #1a1a1a, #383838);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-        
-        .el-icon {
-          transform: scale(1.05);
-        }
-      }
+      background: linear-gradient(135deg, #1e272e 0%, #485460 100%);
     }
 
     // 监控运营体系模块
@@ -677,42 +638,29 @@
     .redbook {
       grid-column: 1 / 5; // 占据整行
       grid-row: 8 / 9; // 放在第8行（最底部）
-      background: linear-gradient(135deg, #ff2c55, #ff385c); // 小红书特有的红色渐变
-      box-shadow: 0 4px 12px rgba(255, 44, 85, 0.15);
-      border: none;
+      background: linear-gradient(135deg, #ff2c55, #ff385c); // 恢复小红书的色调
       
       .content {
         .el-icon {
           font-size: 48px;
           margin-bottom: 16px;
           color: #fff;
-          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
         }
         
         span {
           color: #fff;
-          font-size: 22px;
-          font-weight: 600;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+          font-size: 20px;
+          font-weight: 500;
         }
         
         .description {
-          color: rgba(255, 255, 255, 0.85);
-          font-size: 14px;
-          margin-top: 8px;
-          transform: translateY(0);
-          opacity: 0.85;
+          color: rgba(255, 255, 255, 0.8);
         }
       }
       
       &:hover {
-        transform: translateY(-5px);
         background: linear-gradient(135deg, #ff385c, #ff2c55);
-        box-shadow: 0 8px 24px rgba(255, 44, 85, 0.3);
-        
-        .el-icon {
-          transform: scale(1.05);
-        }
+        box-shadow: 0 8px 24px rgba(255, 44, 85, 0.25);
       }
     }
 

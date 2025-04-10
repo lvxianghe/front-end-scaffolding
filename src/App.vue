@@ -72,7 +72,9 @@ const shouldShowNav = computed(() => {
     '/monitoring',
     '/error-center',
     '/planner',
-    '/knowledge-base'
+    '/knowledge-base',
+    '/pomeranian'
+
   ]
   
   // 如果当前路径在隐藏列表中，则返回false，否则返回true

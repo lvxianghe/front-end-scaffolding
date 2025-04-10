@@ -1067,6 +1067,26 @@ const handleKeyDown = (e: KeyboardEvent) => {
     return
   }
   
+  // 如果在详述编辑模式下，允许方向键的默认行为用于光标移动
+  if (isDetailsEditing.value) {
+    // 只处理Esc键和保存快捷键，其他键包括方向键都交给文本框自己处理
+    if (e.key === 'Escape') {
+      e.preventDefault()
+      endDetailsEditing()
+      return
+    }
+    
+    // Command/Ctrl + S : 保存历史版本
+    if (e.key === 's' && (e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey) {
+      e.preventDefault() // 阻止浏览器默认的保存行为
+      saveHistoryVersion()
+      return
+    }
+    
+    // 允许所有其他键包括方向键的默认行为
+    return
+  }
+  
   // 删除快捷键:
   // Windows/Linux: Alt+Backspace 或 Alt+Delete
   // macOS: Command+Backspace 或 Command+Delete

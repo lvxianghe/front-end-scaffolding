@@ -108,6 +108,17 @@ routes.push({
   }
 });
 
+// 小型博美模块路由
+routes.push({
+  path: '/pomeranian',
+  name: 'Pomeranian',
+  component: () => import('@/views/pomeranian/index.vue'),
+  meta: {
+    title: '小型博美',
+    requiresAuth: false
+  }
+});
+
 const router = createRouter({
     history: createWebHashHistory(),
     routes,

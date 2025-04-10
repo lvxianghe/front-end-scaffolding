@@ -1173,7 +1173,25 @@ const saveCheckin = () => {
 
 // 删除打卡点
 const deleteCheckin = async (index: number) => {
-  if (selectedGoalIndex.value === null) return
+  if (selectedGoalIndex.value === null && !showAllCheckins.value) return
+  
+  let goalIndex = selectedGoalIndex.value
+  let checkinIndex = index
+  
+  // 如果是在全部视图下
+  if (showAllCheckins.value) {
+    const checkin = displayedCheckins.value[index]
+    if (checkin.goalIndex !== undefined) {
+      // 获取真实的目标索引
+      goalIndex = checkin.goalIndex
+      // 在目标的打卡点列表中找到对应的打卡点索引
+      checkinIndex = goalItems.value[goalIndex].checkins.findIndex(c => c.id === checkin.id)
+      if (checkinIndex === -1) return // 未找到对应打卡点
+    }
+  }
+  
+  // 确保此时有有效的目标索引
+  if (goalIndex === null) return
   
   try {
     await ElMessageBox.confirm(
@@ -1186,7 +1204,7 @@ const deleteCheckin = async (index: number) => {
       }
     )
     // 用户确认删除
-    goalItems.value[selectedGoalIndex.value].checkins.splice(index, 1)
+    goalItems.value[goalIndex].checkins.splice(checkinIndex, 1)
     saveGoalItems()
     ElMessage.success('已删除打卡点')
   } catch (error) {
