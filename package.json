@@ -25,6 +25,7 @@
     "gsap": "^3.12.7",
     "highlight.js": "^11.11.1",
     "lodash-es": "^4.17.21",
+    "lunar-javascript": "^1.7.2",
     "marked": "^15.0.6",
     "nprogress": "^0.2.0",
     "particles.js": "^2.0.0",

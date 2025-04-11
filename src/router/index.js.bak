@@ -1,0 +1,152 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import Home from '../views/home/index.vue'
+import Monitoring from '../views/monitoring/index.vue'
+
+const routes = [
+  {
+    path: '/',
+    redirect: '/login'
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/login/index.vue')
+  },
+  {
+    path: '/home',
+    name: 'Home',
+    component: Home
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => import('@/views/about/index.vue')
+  },
+  {
+    path: '/pomeranian',
+    name: 'Pomeranian',
+    component: () => import('@/views/pomeranian/index.vue')
+  },
+  {
+    path: '/redbook',
+    name: 'Redbook',
+    component: () => import('@/views/redbook/index.vue')
+  },
+  {
+    path: '/chatgpt',
+    name: 'ChatGPT',
+    component: () => import('@/views/chatgpt/index.vue')
+  },
+  {
+    path: '/wechat',
+    name: 'WeChat',
+    component: () => import('@/views/wechat/index.vue')
+  },
+  {
+    path: '/douyin',
+    name: 'Douyin',
+    component: () => import('@/views/douyin/index.vue')
+  },
+  {
+    path: '/admin',
+    name: 'Admin',
+    component: () => import('@/views/admin/index.vue')
+  },
+  {
+    path: '/google',
+    name: 'Google',
+    component: () => import('@/views/google/index.vue')
+  },
+  {
+    path: '/digital-rain',
+    name: 'DigitalRain',
+    component: () => import('@/views/digital-rain/index.vue')
+  },
+  {
+    path: '/solar-system',
+    name: 'SolarSystem',
+    component: () => import('@/views/solar-system/index.vue')
+  },
+  {
+    path: '/forbidden-city',
+    name: 'ForbiddenCity',
+    component: () => import('@/views/forbidden-city/index.vue')
+  },
+  {
+    path: '/knowledge-graph',
+    name: 'KnowledgeGraph',
+    component: () => import('@/views/knowledge-graph/index.vue')
+  },
+  {
+    path: '/leaderboard',
+    name: 'Leaderboard',
+    component: () => import('@/views/leaderboard/index.vue')
+  },
+  {
+    path: '/customer-profile',
+    name: 'CustomerProfile',
+    component: () => import('@/views/customer-profile/index.vue')
+  },
+  {
+    path: '/lucky-draw',
+    name: 'LuckyDraw',
+    component: () => import('@/views/lucky-draw/index.vue')
+  },
+  {
+    path: '/drag-drop',
+    name: 'DragDrop',
+    component: () => import('@/views/drag-drop/index.vue')
+  },
+  {
+    path: '/bounty',
+    name: 'Bounty',
+    component: () => import('@/views/bounty/index.vue')
+  },
+  // 新增 Excalidraw 路由
+  {
+    path: '/excalidraw',
+    name: 'Excalidraw',
+    component: () => import('@/views/excalidraw/index.vue')
+  },
+  {
+    path: '/monitoring',
+    name: 'Monitoring',
+    component: Monitoring
+  },
+  {
+    path: '/metric-system',
+    name: 'MetricSystem',
+    component: () => import('@/views/metric-system/index.vue')
+  },
+  // 添加计划模块路由
+  {
+    path: '/planner',
+    name: 'Planner',
+    component: () => import('@/views/planner/index.vue')
+  },
+  // 添加知识库模块路由
+  {
+    path: '/knowledge-base',
+    name: 'KnowledgeBase',
+    component: () => import('@/views/knowledge-base/index.vue')
+  },
+  // 添加错误诊断中心路由
+  {
+    path: '/error-center',
+    name: 'ErrorCenter',
+    component: () => import('@/views/error-center/index.vue')
+  },
+  // 添加日历路由
+  {
+    path: '/calendar',
+    name: 'Calendar',
+    component: () => import('@/views/calendar/index.vue')
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+export default router 

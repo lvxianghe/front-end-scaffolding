@@ -1109,9 +1109,27 @@ const addCheckin = () => {
 
 // 编辑打卡点
 const editCheckin = (index: number) => {
-  if (selectedGoalIndex.value === null) return
+  if (selectedGoalIndex.value === null && !showAllCheckins.value) return
   
-  const checkin = goalItems.value[selectedGoalIndex.value].checkins[index]
+  let goalIndex = selectedGoalIndex.value
+  let checkinIndex = index
+  
+  // 如果是在全部视图下
+  if (showAllCheckins.value) {
+    const checkin = displayedCheckins.value[index]
+    if (checkin.goalIndex !== undefined) {
+      // 获取真实的目标索引
+      goalIndex = checkin.goalIndex
+      // 在目标的打卡点列表中找到对应的打卡点索引
+      checkinIndex = goalItems.value[goalIndex].checkins.findIndex(c => c.id === checkin.id)
+      if (checkinIndex === -1) return // 未找到对应打卡点
+    }
+  }
+  
+  // 确保此时有有效的目标索引
+  if (goalIndex === null) return
+  
+  const checkin = goalItems.value[goalIndex].checkins[checkinIndex]
   checkinForm.value = {
     title: checkin.title,
     description: checkin.description || '',
@@ -1120,7 +1138,9 @@ const editCheckin = (index: number) => {
   }
   
   isEditingCheckin.value = true
-  editingCheckinIndex.value = index
+  editingCheckinIndex.value = checkinIndex
+  // 保存当前编辑的目标索引，用于保存时使用
+  selectedGoalIndex.value = goalIndex
   checkinDialogVisible.value = true
 }
 
@@ -1215,7 +1235,8 @@ const deleteCheckin = async (index: number) => {
 
 // 切换打卡完成状态
 const toggleCheckinCompletion = (index: number) => {
-  if (selectedGoalIndex.value === null) return
+  // 修改条件判断，在全部视图模式下不要求必须有selectedGoalIndex
+  if (selectedGoalIndex.value === null && !showAllCheckins.value) return
   
   let goalIndex = selectedGoalIndex.value
   let checkinIndex = index
@@ -1231,6 +1252,9 @@ const toggleCheckinCompletion = (index: number) => {
       if (checkinIndex === -1) return // 未找到对应打卡点
     }
   }
+  
+  // 确保此时有有效的目标索引
+  if (goalIndex === null) return
   
   const checkin = goalItems.value[goalIndex].checkins[checkinIndex]
   

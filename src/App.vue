@@ -4,7 +4,7 @@
   <el-config-provider :locale="locale">
     <div id="app">
       <!-- 页面内容 -->
-      <main class="app-content" :class="{ 'no-header': route.path.includes('/login') || route.path.includes('/register') || route.path === '/home' || route.path === '/' || route.path === '/digital-rain' || route.path === '/solar-system' || route.path === '/forbidden-city' }">
+      <main class="app-content" :class="{ 'no-header': route.path.includes('/login') || route.path.includes('/register') || route.path === '/home' || route.path === '/' || route.path === '/digital-rain' || route.path === '/solar-system' || route.path === '/forbidden-city' || route.path === '/calendar' }">
         <router-view v-slot="{ Component }">
           <keep-alive>
             <component :is="Component" />
@@ -73,7 +73,8 @@ const shouldShowNav = computed(() => {
     '/error-center',
     '/planner',
     '/knowledge-base',
-    '/pomeranian'
+    '/pomeranian',
+    '/calendar'
 
   ]
   

@@ -41,6 +41,9 @@ importers:
       lodash-es:
         specifier: ^4.17.21
         version: 4.17.21
+      lunar-javascript:
+        specifier: ^1.7.2
+        version: 1.7.2
       marked:
         specifier: ^15.0.6
         version: 15.0.6
@@ -2751,6 +2754,9 @@ packages:
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
+
+  lunar-javascript@1.7.2:
+    resolution: {integrity: sha512-i7J1WhFq96rWKfwkElW0eepJiCgVQElcTrc9v41yg/iAS2EHo2k2Yaook7oiRyEIl9RU+luJydigSmKGvqRYFA==}
 
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
@@ -6767,6 +6773,8 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
+
+  lunar-javascript@1.7.2: {}
 
   magic-string@0.30.17:
     dependencies:

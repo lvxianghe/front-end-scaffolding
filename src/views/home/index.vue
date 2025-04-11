@@ -35,6 +35,17 @@
         </div>
       </div>
 
+      <!-- 日历模块 -->
+      <div class="grid-item calendar" @click="navigateTo('/calendar')">
+        <div class="content">
+          <div class="calendar-icon">
+            <el-icon><Calendar /></el-icon>
+          </div>
+          <span>日历</span>
+          <div class="description">日程安排与规划</div>
+        </div>
+      </div>
+
       <!-- 微信模块 -->
       <div class="grid-item knowledge-base" @click="navigateTo('/knowledge-base')">
         <div class="content">
@@ -1980,6 +1991,31 @@
   0% { transform: translateY(0); }
   100% { transform: translateY(-10px); }
 }
+
+/* 计划管理模块样式 */
+.planner .content {
+  background: linear-gradient(135deg, #409eff, #a0cfff);
+  color: white;
+}
+
+/* 日历模块样式 */
+.calendar .content {
+  background: linear-gradient(135deg, #67c23a, #b3e19d);
+  color: white;
+}
+
+.calendar-icon {
+  width: 50px;
+  height: 50px;
+  font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+/* 知识库模块样式 */
+// ... existing code ...
 </style>
 
 <script setup lang="ts">

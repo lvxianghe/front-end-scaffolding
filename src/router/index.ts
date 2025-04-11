@@ -86,6 +86,128 @@ const ensureDragDropRoutes = typeof dragDropRoutes === 'undefined' ? null : drag
 // 添加关于页面路由
 routes.push(aboutRouter);
 
+// 添加index.js中的其他路由
+// Redbook路由
+routes.push({
+  path: '/redbook',
+  name: 'Redbook',
+  component: () => import('@/views/redbook/index.vue'),
+  meta: {
+    title: '小红书',
+    requiresAuth: false
+  }
+});
+
+// ChatGPT路由
+routes.push({
+  path: '/chatgpt',
+  name: 'ChatGPT',
+  component: () => import('@/views/chatgpt/index.vue'),
+  meta: {
+    title: 'ChatGPT',
+    requiresAuth: false
+  }
+});
+
+// WeChat路由
+routes.push({
+  path: '/wechat',
+  name: 'WeChat',
+  component: () => import('@/views/wechat/index.vue'),
+  meta: {
+    title: '微信',
+    requiresAuth: false
+  }
+});
+
+// Douyin路由
+routes.push({
+  path: '/douyin',
+  name: 'Douyin',
+  component: () => import('@/views/douyin/index.vue'),
+  meta: {
+    title: '抖音',
+    requiresAuth: false
+  }
+});
+
+// Google路由
+routes.push({
+  path: '/google',
+  name: 'Google',
+  component: () => import('@/views/google/index.vue'),
+  meta: {
+    title: 'Google',
+    requiresAuth: false
+  }
+});
+
+// Excalidraw路由
+routes.push({
+  path: '/excalidraw',
+  name: 'Excalidraw',
+  component: () => import('@/views/excalidraw/index.vue'),
+  meta: {
+    title: 'Excalidraw',
+    requiresAuth: false
+  }
+});
+
+// Monitoring路由
+routes.push({
+  path: '/monitoring',
+  name: 'Monitoring',
+  component: () => import('@/views/monitoring/index.vue'),
+  meta: {
+    title: '监控',
+    requiresAuth: false
+  }
+});
+
+// 指标系统路由
+routes.push({
+  path: '/metric-system',
+  name: 'MetricSystem',
+  component: () => import('@/views/metric-system/index.vue'),
+  meta: {
+    title: '指标系统',
+    requiresAuth: false
+  }
+});
+
+// 计划模块路由
+routes.push({
+  path: '/planner',
+  name: 'Planner',
+  component: () => import('@/views/planner/index.vue'),
+  meta: {
+    title: '计划',
+    requiresAuth: false
+  }
+});
+
+// 知识库模块路由
+routes.push({
+  path: '/knowledge-base',
+  name: 'KnowledgeBase',
+  component: () => import('@/views/knowledge-base/index.vue'),
+  meta: {
+    title: '知识库',
+    requiresAuth: false
+  }
+});
+
+// 错误诊断中心路由
+routes.push({
+  path: '/error-center',
+  name: 'ErrorCenter',
+  component: () => import('@/views/error-center/index.vue'),
+  meta: {
+    title: '错误中心',
+    requiresAuth: false
+  }
+});
+
 // 客户画像模块路由
 routes.push({
   path: '/customer-profile',
@@ -119,8 +241,20 @@ routes.push({
   }
 });
 
+// 日历模块路由
+routes.push({
+  path: '/calendar',
+  name: 'Calendar',
+  component: () => import('@/views/calendar/index.vue'),
+  meta: {
+    title: '日历',
+    icon: 'Calendar',
+    requiresAuth: false
+  }
+});
+
 const router = createRouter({
-    history: createWebHashHistory(),
+    history: createWebHistory(),
     routes,
     scrollBehavior() {
       // 始终滚动到顶部
