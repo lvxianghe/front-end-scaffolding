@@ -247,33 +247,31 @@
             </button>
           </div>
           
-          <div class="input-row">
-            <textarea 
-              v-model="userInput" 
-              class="chat-input" 
-              placeholder="给 小型博美 发送消息" 
-              @keydown.enter.prevent="sendMessage"
-              rows="1"
-              ref="inputRef"
-            ></textarea>
-            
-            <div class="input-tools">
-              <button class="tool-btn upload-btn" @click="openFileManager" title="管理文件">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
-                  <line x1="16" y1="13" x2="8" y2="13"></line>
-                  <line x1="16" y1="17" x2="8" y2="17"></line>
-                  <polyline points="10 9 9 9 8 9"></polyline>
-                </svg>
-              </button>
-              <button class="send-btn" @click="sendMessage" :disabled="!userInput.trim()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="22" y1="2" x2="11" y2="13"></line>
-                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-              </button>
-            </div>
+          <textarea 
+            v-model="userInput" 
+            class="chat-input" 
+            placeholder="给 小型博美 发送消息" 
+            @keydown.enter.prevent="sendMessage"
+            rows="1"
+            ref="inputRef"
+          ></textarea>
+          
+          <div class="input-tools">
+            <button class="tool-btn upload-btn" @click="openFileManager" title="管理文件">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+            </button>
+            <button class="send-btn" @click="sendMessage" :disabled="!userInput.trim()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
           </div>
         </div>
       </div>
@@ -525,164 +523,155 @@
     
     <!-- 主题设置弹出窗口 -->
     <div class="modal-overlay" v-if="showThemeSettings" @click="showThemeSettings = false">
-      <div class="modal-container theme-settings" @click.stop style="max-width: 800px; width: 90%;">
+      <div class="modal-container theme-settings" @click.stop>
         <div class="modal-header">
           <h3>个性化设置</h3>
           <button class="modal-close" @click="showThemeSettings = false">×</button>
         </div>
         <div class="modal-body">
-          <div class="settings-layout">
-            <div class="settings-column">
-              <div class="theme-section">
-                <div class="section-row">
-                  <h4 class="section-title">主题风格</h4>
-                  <div class="theme-options">
-                    <div 
-                      v-for="theme in themeOptions" 
-                      :key="theme.id"
-                      :class="['theme-option', currentTheme === theme.id ? 'selected' : '']"
-                      @click="setTheme(theme.id)"
-                    >
-                      <div class="theme-preview" :style="{ background: theme.preview }"></div>
-                      <div class="theme-name">{{ theme.name }}</div>
-                    </div>
-                  </div>
+          <div class="theme-section">
+            <h4 class="section-title">主题风格</h4>
+            <div class="theme-options">
+              <div 
+                v-for="theme in themeOptions" 
+                :key="theme.id"
+                :class="['theme-option', currentTheme === theme.id ? 'selected' : '']"
+                @click="setTheme(theme.id)"
+              >
+                <div class="theme-preview" :style="{ background: theme.preview }"></div>
+                <div class="theme-name">{{ theme.name }}</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="theme-section">
+            <h4 class="section-title">明暗模式</h4>
+            <div class="mode-toggle">
+              <button 
+                :class="['mode-btn', !isDarkMode ? 'active' : '']" 
+                @click="setDarkMode(false)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <span>浅色模式</span>
+              </button>
+              <button 
+                :class="['mode-btn', isDarkMode ? 'active' : '']" 
+                @click="setDarkMode(true)"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+                <span>深色模式</span>
+              </button>
+            </div>
+          </div>
+          
+          <div class="theme-section">
+            <h4 class="section-title">字体设置</h4>
+            <div class="font-settings">
+              <div class="font-setting">
+                <span class="setting-label">字体大小</span>
+                <div class="setting-options">
+                  <button 
+                    :class="['option-btn', currentFontSettings.size === 'small' ? 'active' : '']"
+                    @click="setFontSize('small')"
+                  >
+                    小
+                  </button>
+                  <button 
+                    :class="['option-btn', currentFontSettings.size === 'medium' ? 'active' : '']"
+                    @click="setFontSize('medium')"
+                  >
+                    中
+                  </button>
+                  <button 
+                    :class="['option-btn', currentFontSettings.size === 'large' ? 'active' : '']"
+                    @click="setFontSize('large')"
+                  >
+                    大
+                  </button>
                 </div>
               </div>
               
-              <div class="theme-section">
-                <div class="section-row">
-                  <h4 class="section-title">明暗模式</h4>
-                  <div class="mode-toggle">
-                    <button 
-                      :class="['mode-btn', !isDarkMode ? 'active' : '']" 
-                      @click="setDarkMode(false)"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                      </svg>
-                      <span>浅色</span>
-                    </button>
-                    <button 
-                      :class="['mode-btn', isDarkMode ? 'active' : '']" 
-                      @click="setDarkMode(true)"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                      </svg>
-                      <span>深色</span>
-                    </button>
-                  </div>
+              <div class="font-setting">
+                <span class="setting-label">字体间距</span>
+                <div class="setting-options">
+                  <button 
+                    :class="['option-btn', currentFontSettings.spacing === 'compact' ? 'active' : '']"
+                    @click="setFontSpacing('compact')"
+                  >
+                    紧凑
+                  </button>
+                  <button 
+                    :class="['option-btn', currentFontSettings.spacing === 'normal' ? 'active' : '']"
+                    @click="setFontSpacing('normal')"
+                  >
+                    标准
+                  </button>
+                  <button 
+                    :class="['option-btn', currentFontSettings.spacing === 'relaxed' ? 'active' : '']"
+                    @click="setFontSpacing('relaxed')"
+                  >
+                    宽松
+                  </button>
                 </div>
               </div>
               
-              <div class="theme-section">
-                <div class="font-settings">
-                  <div class="font-setting section-row">
-                    <span class="setting-label">字体大小</span>
-                    <div class="setting-options">
-                      <button 
-                        :class="['option-btn', currentFontSettings.size === 'small' ? 'active' : '']"
-                        @click="setFontSize('small')"
-                      >
-                        小
-                      </button>
-                      <button 
-                        :class="['option-btn', currentFontSettings.size === 'medium' ? 'active' : '']"
-                        @click="setFontSize('medium')"
-                      >
-                        中
-                      </button>
-                      <button 
-                        :class="['option-btn', currentFontSettings.size === 'large' ? 'active' : '']"
-                        @click="setFontSize('large')"
-                      >
-                        大
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div class="font-setting section-row">
-                    <span class="setting-label">字体间距</span>
-                    <div class="setting-options">
-                      <button 
-                        :class="['option-btn', currentFontSettings.spacing === 'compact' ? 'active' : '']"
-                        @click="setFontSpacing('compact')"
-                      >
-                        紧凑
-                      </button>
-                      <button 
-                        :class="['option-btn', currentFontSettings.spacing === 'normal' ? 'active' : '']"
-                        @click="setFontSpacing('normal')"
-                      >
-                        标准
-                      </button>
-                      <button 
-                        :class="['option-btn', currentFontSettings.spacing === 'relaxed' ? 'active' : '']"
-                        @click="setFontSpacing('relaxed')"
-                      >
-                        宽松
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div class="font-setting section-row">
-                    <span class="setting-label">字体风格</span>
-                    <div class="setting-options">
-                      <button 
-                        :class="['option-btn', currentFontSettings.family === 'default' ? 'active' : '']"
-                        @click="setFontFamily('default')"
-                      >
-                        默认
-                      </button>
-                      <button 
-                        :class="['option-btn', currentFontSettings.family === 'serif' ? 'active' : '']"
-                        @click="setFontFamily('serif')"
-                      >
-                        衬线
-                      </button>
-                      <button 
-                        :class="['option-btn', currentFontSettings.family === 'mono' ? 'active' : '']"
-                        @click="setFontFamily('mono')"
-                      >
-                        等宽
-                      </button>
-                    </div>
-                  </div>
+              <div class="font-setting">
+                <span class="setting-label">字体风格</span>
+                <div class="setting-options">
+                  <button 
+                    :class="['option-btn', currentFontSettings.family === 'default' ? 'active' : '']"
+                    @click="setFontFamily('default')"
+                  >
+                    默认
+                  </button>
+                  <button 
+                    :class="['option-btn', currentFontSettings.family === 'serif' ? 'active' : '']"
+                    @click="setFontFamily('serif')"
+                  >
+                    衬线
+                  </button>
+                  <button 
+                    :class="['option-btn', currentFontSettings.family === 'mono' ? 'active' : '']"
+                    @click="setFontFamily('mono')"
+                  >
+                    等宽
+                  </button>
                 </div>
               </div>
             </div>
-            
-            <div class="settings-column">
-              <div class="theme-preview-section">
-                <h4 class="section-title">预览效果</h4>
-                <div 
-                  class="preview-container"
-                  :class="[
-                    `theme-${currentTheme}`, 
-                    isDarkMode ? 'dark-mode' : '',
-                    `font-size-${currentFontSettings.size}`,
-                    `font-spacing-${currentFontSettings.spacing}`,
-                    `font-family-${currentFontSettings.family}`
-                  ]"
-                >
-                  <div class="preview-header">
-                    <div class="preview-logo">小型博美</div>
-                    <div class="preview-controls"></div>
-                  </div>
-                  <div class="preview-message user">您好，请问如何优化我的提示词？</div>
-                  <div class="preview-message bot">
-                    要优化提示词，可以考虑以下几点：使用清晰具体的指示、提供上下文信息、设定合适的角色和格式要求、分步骤引导回答。
-                  </div>
-                </div>
+          </div>
+          
+          <div class="theme-preview-section">
+            <h4 class="section-title">预览效果</h4>
+            <div 
+              class="preview-container"
+              :class="[
+                `theme-${currentTheme}`, 
+                isDarkMode ? 'dark-mode' : '',
+                `font-size-${currentFontSettings.size}`,
+                `font-spacing-${currentFontSettings.spacing}`,
+                `font-family-${currentFontSettings.family}`
+              ]"
+            >
+              <div class="preview-header">
+                <div class="preview-logo">小型博美</div>
+                <div class="preview-controls"></div>
+              </div>
+              <div class="preview-message user">您好，请问如何优化我的提示词？</div>
+              <div class="preview-message bot">
+                要优化提示词，可以考虑以下几点：使用清晰具体的指示、提供上下文信息、设定合适的角色和格式要求、分步骤引导回答。
               </div>
             </div>
           </div>
@@ -696,12 +685,12 @@
     
     <!-- 提示词库弹出层 -->
     <div class="modal-overlay" v-if="showPromptLibrary" @click="showPromptLibrary = false">
-      <div class="modal-container prompt-library" @click.stop style="max-width: 900px; width: 90%; max-height: 80vh;">
+      <div class="modal-container prompt-library" @click.stop>
         <div class="modal-header">
           <h3>提示词库</h3>
           <button class="modal-close" @click="showPromptLibrary = false">×</button>
         </div>
-        <div class="modal-body" style="max-height: calc(80vh - 120px); overflow-y: auto;">
+        <div class="modal-body">
           <div class="prompt-library-toolbar">
             <div class="prompt-search">
               <input 
@@ -740,18 +729,6 @@
               >
                 分析
               </button>
-              <button 
-                :class="['filter-btn', currentPromptFilter === 'creativity' ? 'active' : '']" 
-                @click="currentPromptFilter = 'creativity'"
-              >
-                创意
-              </button>
-              <button 
-                :class="['filter-btn', currentPromptFilter === 'education' ? 'active' : '']" 
-                @click="currentPromptFilter = 'education'"
-              >
-                教育
-              </button>
             </div>
             <button class="add-prompt-btn" @click="openAddPromptModal">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -763,57 +740,54 @@
           </div>
           
           <div class="prompts-container">
-            <div class="prompts-grid">
-              <div 
-                v-for="prompt in filteredPrompts" 
-                :key="prompt.id" 
-                class="prompt-card"
-                :style="{ borderColor: getPromptCategoryColor(prompt.category) }"
-                @mouseover="(event) => showPromptPreview(prompt, event)"
-                @mouseleave="hidePromptPreview()"
-              >
-                <div class="prompt-card-header" :style="{ backgroundColor: getPromptCategoryColor(prompt.category) }">
-                  <span class="prompt-name">{{ prompt.name }}</span>
-                  <div class="prompt-category-badge">{{ getCategoryLabel(prompt.category) }}</div>
+            <div 
+              v-for="prompt in filteredPrompts" 
+              :key="prompt.id" 
+              class="prompt-card"
+              :style="{ borderColor: getPromptCategoryColor(prompt.category) }"
+              @mouseover="(event) => showPromptPreview(prompt, event)"
+              @mouseleave="hidePromptPreview()"
+            >
+              <div class="prompt-card-header" :style="{ backgroundColor: getPromptCategoryColor(prompt.category) }">
+                <span class="prompt-name">{{ prompt.name }}</span>
+                <div class="prompt-category-badge">{{ getCategoryLabel(prompt.category) }}</div>
+              </div>
+              <div class="prompt-card-body">
+                <div class="prompt-description">{{ prompt.description }}</div>
+                <div class="prompt-tags">
+                  <span v-for="(tag, index) in prompt.tags" :key="index" class="prompt-tag">
+                    {{ tag }}
+                  </span>
                 </div>
-                <div class="prompt-card-body">
-                  <div class="prompt-description">{{ prompt.description }}</div>
-                  <div class="prompt-tags">
-                    <span v-for="(tag, index) in prompt.tags.slice(0, 3)" :key="index" class="prompt-tag">
-                      {{ tag }}
-                    </span>
-                    <span v-if="prompt.tags.length > 3" class="prompt-tag-more">+{{ prompt.tags.length - 3 }}</span>
-                  </div>
+              </div>
+              <div class="prompt-card-footer">
+                <div class="prompt-usage">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                  <span>已使用 {{ prompt.usageCount }} 次</span>
                 </div>
-                <div class="prompt-card-footer">
-                  <div class="prompt-usage">
+                <div class="prompt-actions">
+                  <button class="prompt-action-btn copy-btn" @click.stop="copyPromptToInput(prompt)" title="复制到输入框">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M12 20h9"></path>
-                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                      <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
                     </svg>
-                    <span>已使用 {{ prompt.usageCount }} 次</span>
-                  </div>
-                  <div class="prompt-actions">
-                    <button class="prompt-action-btn copy-btn" @click.stop="copyPromptToInput(prompt)" title="复制到输入框">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                      </svg>
-                    </button>
-                    <button class="prompt-action-btn edit-btn" @click.stop="editPrompt(prompt)" title="编辑提示词">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                      </svg>
-                    </button>
-                    <button class="prompt-action-btn delete-btn" @click.stop="deletePrompt(prompt.id)" title="删除提示词">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 6h18"></path>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
-                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                      </svg>
-                    </button>
-                  </div>
+                  </button>
+                  <button class="prompt-action-btn edit-btn" @click.stop="editPrompt(prompt)" title="编辑提示词">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                  <button class="prompt-action-btn delete-btn" @click.stop="deletePrompt(prompt.id)" title="删除提示词">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M3 6h18"></path>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                      <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1169,25 +1143,6 @@ const showToast = (message: string) => {
   }, 3000);
 };
 
-// 自动调整输入框高度
-const adjustTextareaHeight = () => {
-  if (!inputRef.value) return;
-  
-  // 重置高度以便重新计算
-  inputRef.value.style.height = 'auto';
-  
-  // 计算新的高度（最大高度为150px）
-  const newHeight = Math.min(150, inputRef.value.scrollHeight);
-  
-  // 设置新高度
-  inputRef.value.style.height = `${newHeight}px`;
-};
-
-// 监听输入内容变化，自动调整高度
-watch(userInput, () => {
-  nextTick(adjustTextareaHeight);
-});
-
 // 切换侧边栏
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value;
@@ -1264,6 +1219,17 @@ const scrollToBottom = () => {
 watch(messages, () => {
   nextTick(() => {
     scrollToBottom();
+  });
+});
+
+// 监听输入框内容变化，自动调整高度
+watch(userInput, () => {
+  nextTick(() => {
+    if (inputRef.value) {
+      inputRef.value.style.height = 'auto';
+      const newHeight = Math.min(inputRef.value.scrollHeight, 150);
+      inputRef.value.style.height = `${newHeight}px`;
+    }
   });
 });
 
@@ -1526,19 +1492,6 @@ onMounted(() => {
   
   // 加载保存的主题设置
   loadSavedThemeSettings();
-  
-  // 监听全局点击事件
-  document.body.addEventListener('click', () => {
-    showPreview.value = false;
-  });
-  
-  // 初始化输入框高度
-  nextTick(adjustTextareaHeight);
-  
-  // 添加输入事件监听，实时调整高度
-  if (inputRef.value) {
-    inputRef.value.addEventListener('input', adjustTextareaHeight);
-  }
 });
 
 // 打开主题设置
@@ -1755,35 +1708,12 @@ const showPromptPreview = (prompt: PromptTemplate, event: MouseEvent) => {
   const target = event.currentTarget as HTMLElement;
   const rect = target.getBoundingClientRect();
   
-  // 计算视窗大小
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-  
-  // 默认宽高
-  const previewWidth = 600;
-  // 根据内容长度决定预览高度，但至少200px，最多500px
-  const previewHeight = 500; // 使用固定最大高度，内部滚动
-  
-  // 确定左右位置 - 如果右侧空间不足则显示在左侧
-  let left;
-  if (rect.right + previewWidth + 20 < viewportWidth) {
-    // 显示在右侧
-    left = `${rect.right + 10}px`;
-  } else {
-    // 显示在左侧
-    left = `${Math.max(10, rect.left - previewWidth - 10)}px`;
-  }
-  
-  // 确定上下位置 - 尽量居中对齐，但不超出视窗
-  let top = rect.top - 100; // 在卡片上方显示，留出空间
-  top = Math.max(10, Math.min(viewportHeight - previewHeight - 10, top));
-  
-  // 设置预览框位置
+  // 预览框位置 - 默认显示在鼠标右侧
   previewPosition.value = {
-    top: `${top}px`,
-    left: left,
-    maxWidth: `${previewWidth}px`,
-    height: `${previewHeight}px`
+    top: `${rect.top}px`,
+    left: `${rect.right + 10}px`,
+    maxWidth: '300px',
+    maxHeight: '200px'
   };
   
   showPreview.value = true;
@@ -1798,7 +1728,6 @@ const hidePromptPreview = () => {
 const copyPromptToInput = (prompt: PromptTemplate) => {
   userInput.value = prompt.content;
   showPromptLibrary.value = false;
-  showPreview.value = false; // 确保关闭预览
   
   // 增加使用次数
   const index = promptTemplates.value.findIndex(p => p.id === prompt.id);
@@ -1891,21 +1820,7 @@ const deletePrompt = (id: number) => {
   }
 };
 
-// 监听提示词库显示状态
-watch(showPromptLibrary, (newValue) => {
-  if (!newValue) {
-    // 当提示词库关闭时，确保预览也关闭
-    showPreview.value = false;
-  }
-});
-
-// 监听全局点击事件
-onMounted(() => {
-  document.body.addEventListener('click', () => {
-    showPreview.value = false;
-  });
-});
-
+// 限制显示的标签数量
 </script>
 
 <style lang="less" scoped>
@@ -2748,86 +2663,78 @@ onMounted(() => {
           }
         }
         &.prompt-library-btn {
-          background-color: rgba(249, 115, 22, 0.1);
-          color: #f97316;
+          background-color: rgba(14, 165, 233, 0.1);
+          color: #0284c7;
           
           svg {
-            stroke: #f97316;
+            stroke: #0284c7;
           }
           
           &:hover {
-            background-color: rgba(249, 115, 22, 0.2);
+            background-color: rgba(14, 165, 233, 0.2);
           }
         }
       }
     }
     
-    .input-row {
+    .chat-input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 1.05rem;
+      resize: none;
+      outline: none;
+      line-height: 1.5;
+      max-height: 150px;
+      min-height: 36px;
+      padding: 8px 0;
+    }
+    
+    .input-tools {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
+      justify-content: flex-end;
       
-      .chat-input {
-        flex: 1;
-        border: none;
+      .tool-btn {
         background: transparent;
-        font-size: 1.05rem;
-        resize: none;
-        outline: none;
-        line-height: 1.5;
-        max-height: 150px;
-        min-height: 36px;
-        padding: 8px 0;
-        overflow-y: auto;
-      }
-      
-      .input-tools {
+        border: none;
+        color: #666;
+        padding: 6px 8px;
+        margin-right: 6px;
+        border-radius: 4px;
+        cursor: pointer;
         display: flex;
         align-items: center;
-        justify-content: flex-end;
-        align-self: flex-end;
-        margin-left: 8px;
+        justify-content: center;
         
-        .tool-btn {
-          background: transparent;
-          border: none;
-          color: #666;
-          padding: 6px 8px;
-          margin-right: 6px;
-          border-radius: 4px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          
-          &:hover {
-            background: rgba(0, 0, 0, 0.05);
-            color: #333;
-          }
+        &:hover {
+          background: rgba(0, 0, 0, 0.05);
+      color: #333;
+        }
+      }
+      
+      .send-btn {
+        color: #4665ee;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 6px 8px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        &:hover {
+          background: rgba(70, 101, 238, 0.1);
         }
         
-        .send-btn {
-          color: #4665ee;
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          padding: 6px 8px;
-          border-radius: 4px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          
-          &:hover {
-            background: rgba(70, 101, 238, 0.1);
-          }
-          
-          &:disabled {
-            color: #ccc;
-            cursor: not-allowed;
-          }
-          
-          svg {
-            stroke: currentColor;
-          }
+        &:disabled {
+          color: #ccc;
+          cursor: not-allowed;
+        }
+        
+        svg {
+          stroke: currentColor;
         }
       }
     }
@@ -3450,54 +3357,22 @@ onMounted(() => {
 
 /* 主题设置弹出窗口样式 */
 .theme-settings {
-  .settings-layout {
-    display: flex;
-    gap: 20px;
-    
-    .settings-column {
-      flex: 1;
-      min-width: 0;
-      
-      &:first-child {
-        flex: 0 0 55%;
-      }
-      
-      &:last-child {
-        flex: 0 0 45%;
-      }
-    }
-  }
-
   .theme-section {
-    margin-bottom: 12px;
-    
-    /* 隐藏字体设置标题 */
-    &:nth-child(3) .section-title {
-      display: none;
-    }
-    
-    .section-row {
-      display: flex;
-      align-items: center;
-      margin-bottom: 6px;
-    }
+    margin-bottom: 20px;
     
     .section-title {
-      font-size: 0.95rem;
+      font-size: 1.2rem;
       font-weight: bold;
-      width: 70px;
-      margin-right: 8px;
-      margin-bottom: 0;
+      margin-bottom: 10px;
     }
     
     .theme-options {
       display: flex;
-      gap: 8px;
-      flex: 1;
+      gap: 10px;
       
       .theme-option {
         flex: 1;
-        padding: 5px;
+        padding: 10px;
         border: 2px solid #ddd;
         border-radius: 6px;
         cursor: pointer;
@@ -3509,69 +3384,113 @@ onMounted(() => {
         
         .theme-preview {
           width: 100%;
-          height: 30px;
+          height: 100px;
           border-radius: 4px;
-          margin-bottom: 4px;
+          margin-bottom: 5px;
         }
         
         .theme-name {
-          font-size: 0.85rem;
+          font-size: 0.9rem;
           color: #333;
-          text-align: center;
         }
       }
     }
+  }
+  
+  .mode-toggle {
+    display: flex;
+    gap: 10px;
     
-    .mode-toggle {
-      display: flex;
-      gap: 8px;
+    .mode-btn {
       flex: 1;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
       
-      .mode-btn {
-        flex: 1;
-        padding: 8px;
-        border: 2px solid #ddd;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s;
+      &.active {
+        border-color: #4665ee;
+      }
+      
+      svg {
+        margin-right: 5px;
+      }
+    }
+  }
+  
+  .font-settings {
+    margin-top: 20px;
+    
+    .font-setting {
+      margin-bottom: 10px;
+      
+      .setting-label {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+      
+      .setting-options {
         display: flex;
-        align-items: center;
-        justify-content: center;
+        gap: 10px;
         
-        &.active {
-          border-color: #4665ee;
-        }
-        
-        svg {
-          margin-right: 5px;
+        .option-btn {
+          flex: 1;
+          padding: 10px;
+          border: 2px solid #ddd;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.2s;
+          
+          &.active {
+            border-color: #4665ee;
+          }
         }
       }
     }
+  }
+  
+  .theme-preview-section {
+    margin-top: 20px;
     
-    .setting-label {
-      font-size: 0.85rem;
-      font-weight: bold;
-      width: 70px;
-      margin-right: 8px;
-    }
-    
-    .setting-options {
-      display: flex;
-      gap: 6px;
-      flex: 1;
+    .preview-container {
+      border: 2px dashed #ddd;
+      border-radius: 6px;
+      padding: 10px;
+      background: #f9f9f9;
       
-      .option-btn {
-        flex: 1;
-        padding: 8px;
-        border: 2px solid #ddd;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.85rem;
+      .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 10px;
         
-        &.active {
-          border-color: #4665ee;
+        .preview-logo {
+          font-size: 1.2rem;
+          font-weight: bold;
         }
+        
+        .preview-controls {
+          display: flex;
+          gap: 10px;
+          
+          .control-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            
+            &:hover {
+              color: #4665ee;
+            }
+          }
+        }
+      }
+      
+      .preview-message {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 10px;
       }
     }
   }
@@ -3615,8 +3534,7 @@ onMounted(() => {
     
     .prompt-filters {
       display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
+      gap: 4px;
       
       .filter-btn {
         padding: 6px 12px;
@@ -3650,7 +3568,6 @@ onMounted(() => {
       font-size: 0.9rem;
       cursor: pointer;
       transition: all 0.2s;
-      white-space: nowrap;
       
       &:hover {
         background: #3a56d4;
@@ -3662,41 +3579,31 @@ onMounted(() => {
   .prompts-container {
     border: 1px solid #eee;
     border-radius: 6px;
-    padding: 16px;
-    
-    .prompts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 16px;
-    }
+    max-height: 400px;
+    overflow-y: auto;
     
     .prompt-card {
       display: flex;
       flex-direction: column;
       border: 1px solid #ddd;
-      border-radius: 8px;
+      border-radius: 6px;
+      margin-bottom: 10px;
       transition: all 0.2s;
-      background-color: #fff;
-      height: 100%;
-      overflow: hidden;
       
       &:hover {
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       }
       
       .prompt-card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 12px;
+        padding: 10px;
         border-bottom: 1px solid #eee;
         
         .prompt-name {
           font-weight: bold;
-          font-size: 1rem;
-          color: white;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+          font-size: 0.9rem;
         }
         
         .prompt-category-badge {
@@ -3704,43 +3611,28 @@ onMounted(() => {
           border-radius: 4px;
           font-size: 0.7rem;
           color: white;
-          background: rgba(255, 255, 255, 0.25);
-          backdrop-filter: blur(4px);
+          background: #4665ee;
         }
       }
       
       .prompt-card-body {
-        padding: 12px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
+        padding: 10px;
         
         .prompt-description {
           font-size: 0.9rem;
-          color: #555;
-          margin-bottom: 12px;
-          flex: 1;
+          color: #666;
+          margin-bottom: 8px;
         }
         
         .prompt-tags {
           display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-          margin-top: auto;
+          gap: 4px;
+          margin-bottom: 8px;
           
           .prompt-tag {
             font-size: 0.8rem;
-            color: #666;
-            padding: 4px 8px;
-            border-radius: 4px;
-            background: #f5f5f5;
-          }
-          
-          .prompt-tag-more {
-            font-size: 0.8rem;
             color: #888;
-            padding: 4px 8px;
-            background: #f0f0f0;
+            padding: 4px 6px;
             border-radius: 4px;
           }
         }
@@ -3750,9 +3642,7 @@ onMounted(() => {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 12px;
-        background: #f9f9f9;
-        border-top: 1px solid #eee;
+        padding-top: 10px;
         
         .prompt-usage {
           display: flex;
@@ -3762,21 +3652,21 @@ onMounted(() => {
           color: #888;
           
           svg {
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             margin-right: 4px;
           }
         }
         
         .prompt-actions {
           display: flex;
-          gap: 8px;
+          gap: 4px;
           
           .prompt-action-btn {
             background: transparent;
             border: none;
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             border-radius: 4px;
             display: flex;
             align-items: center;
@@ -3788,18 +3678,6 @@ onMounted(() => {
             &:hover {
               background: rgba(0, 0, 0, 0.05);
               color: #333;
-              
-              &.copy-btn {
-                color: #4665ee;
-              }
-              
-              &.edit-btn {
-                color: #f97316;
-              }
-              
-              &.delete-btn {
-                color: #dc2626;
-              }
             }
           }
         }
@@ -3819,65 +3697,31 @@ onMounted(() => {
 .prompt-preview-tooltip {
   position: fixed;
   background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   padding: 0;
   z-index: 1000;
   pointer-events: none;
   overflow: hidden;
   border: 1px solid #eee;
-  max-width: 600px;
-  width: 600px;
-  height: 500px; /* 固定总高度 */
-  display: flex;
-  flex-direction: column;
+  max-width: 300px;
   
   .preview-header {
     background: #f5f5f5;
-    padding: 10px 14px;
+    padding: 8px 12px;
     font-size: 0.9rem;
     color: #555;
     font-weight: bold;
     border-bottom: 1px solid #eee;
-    display: flex;
-    align-items: center;
-    flex-shrink: 0; /* 防止标题被压缩 */
-    
-    &::before {
-      content: "";
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background-color: #f97316;
-      margin-right: 8px;
-    }
   }
   
   .preview-content {
-    padding: 14px 16px;
-    font-size: 0.9rem;
+    padding: 10px 12px;
+    font-size: 0.85rem;
     color: #444;
-    flex: 1; /* 占满剩余空间 */
+    max-height: 200px;
     overflow-y: auto;
     white-space: pre-wrap;
-    line-height: 1.6;
-  }
-  
-  .dark-mode & {
-    background: #2a2a2a;
-    border-color: #444;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-    
-    .preview-header {
-      background: #333;
-      color: #eee;
-      border-bottom-color: #444;
-    }
-    
-    .preview-content {
-      color: #ddd;
-    }
   }
 }
 
@@ -3914,30 +3758,5 @@ onMounted(() => {
       }
     }
   }
-}
-
-.prompts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.prompt-tag-more {
-  color: #888;
-  font-size: 0.8rem;
-  margin-left: 4px;
-}
-
-.chat-input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 1.05rem;
-  resize: none;
-  outline: none;
-  line-height: 1.5;
-  max-height: 150px;
-  min-height: 36px;
-  padding: 8px 0;
 }
 </style> 
