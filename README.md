@@ -1,5 +1,6 @@
 # 引言
 想要做一名懂前端的后端开发，借鉴主流app及互联网服务，全面提升自己的技术能力
+ - 大模型应用：小型博美（AI机器人）
  - 搜索引擎：百度、谷歌
  - im：微信、chatgpt
  - 搜索推荐系统/社交帖子音视频：小红书、抖音
@@ -75,7 +76,19 @@
 ![image](https://github.com/user-attachments/assets/57420628-8f21-4e71-8d22-0cdc79993edd)
 
 ## 主页面
-![image](https://github.com/user-attachments/assets/0b2cd9c7-d04e-446f-ba19-adde9dbc943f)
+![image](https://github.com/user-attachments/assets/1751c6f6-5e1f-4876-a821-f2b23d05b821)
+
+## 小型博美（AI机器人）
+![image](https://github.com/user-attachments/assets/37cce180-3d2f-45f2-b017-8532607744a5)
+
+## 知识库（个人日常喜好）
+![image](https://github.com/user-attachments/assets/c8a685f1-f69c-437f-ab49-a0dfb82d3456)
+
+## 计划（个人日常喜好）
+![image](https://github.com/user-attachments/assets/8ff6a9f2-83d5-4ec9-8431-04933fd52132)
+
+## 日历（个人日常喜好）
+![image](https://github.com/user-attachments/assets/b4858f0c-f0be-4193-a9d1-a9a016e87e33)
 
 ## 抖音（仿）
 ![image](https://github.com/user-attachments/assets/266cc4ee-efdf-4189-bdab-4a43f351b4bf)
