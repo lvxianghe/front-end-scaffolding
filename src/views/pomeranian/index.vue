@@ -245,6 +245,12 @@
               </svg>
               <span>提示词库</span>
             </button>
+            <button class="mode-btn cloud-model-btn" @click="useCloudModel = !useCloudModel" :class="{ 'active': useCloudModel }" title="云端大模型">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path>
+              </svg>
+              <span>云端大模型</span>
+            </button>
           </div>
           
           <div class="input-row">
@@ -972,6 +978,10 @@ const isTyping = ref(false);
 const chatContentRef = ref<HTMLElement | null>(null);
 const inputRef = ref<HTMLTextAreaElement | null>(null);
 const sidebarCollapsed = ref(false);
+const useCloudModel = ref(false); // 是否使用云端大模型
+const streamController = ref<AbortController | null>(null); // 用于控制流式请求
+
+// 后端服务器配置
 
 // 主题设置相关状态
 const showThemeSettings = ref(false);
@@ -1213,44 +1223,170 @@ const getCurrentTime = () => {
   return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 };
 
-// 发送消息
+// 发送消息并获取回复
 const sendMessage = async () => {
-  if (!userInput.value.trim()) return;
+  const trimmedInput = userInput.value.trim();
+  if (!trimmedInput) return;
   
   // 添加用户消息
-  messages.value.push({
-    role: 'user',
-    content: userInput.value,
-    time: getCurrentTime()
-  });
+  const now = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
   
-  const question = userInput.value;
+  const userMessage: Message = {
+    role: 'user',
+    content: trimmedInput,
+    time: timeStr
+  };
+  
+  messages.value.push(userMessage);
   userInput.value = '';
   
   // 自动调整输入框高度
-  if (inputRef.value) {
-    inputRef.value.style.height = 'auto';
-  }
+  nextTick(() => {
+    if (inputRef.value) {
+      inputRef.value.style.height = 'auto';
+    }
+  });
   
   // 滚动到底部
-  await nextTick();
   scrollToBottom();
   
-  // 模拟机器人响应
+  // 显示正在输入状态
   isTyping.value = true;
-  setTimeout(() => {
-    isTyping.value = false;
+  
+  try {
+    if (useCloudModel.value) {
+      // 使用云端大模型API
+      await fetchCloudModelResponse(trimmedInput);
+    } else {
+      // 使用本地模拟回复
+      await simulateResponse(trimmedInput);
+    }
+  } catch (error) {
+    console.error('Error getting response:', error);
     messages.value.push({
       role: 'bot',
-      content: '该功能正在开发中，敬请期待！我们的智能问答系统将很快为您提供精准的知识库检索和专业的问题解答服务。',
-      time: getCurrentTime()
+      content: '抱歉，处理您的请求时发生错误。请稍后再试。',
+      time: timeStr
+    });
+  } finally {
+    isTyping.value = false;
+    scrollToBottom();
+  }
+};
+
+// 从云端大模型获取回复
+const fetchCloudModelResponse = async (prompt: string) => {
+  try {
+    // 中止之前的请求（如果有）
+    if (streamController.value) {
+      streamController.value.abort();
+    }
+    
+    // 创建新的 AbortController
+    streamController.value = new AbortController();
+    const signal = streamController.value.signal;
+    
+    // 当前时间用于消息时间戳
+    const now = new Date();
+    const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    
+    // 创建一个空的机器人回复
+    const botMessage: Message = {
+      role: 'bot',
+      content: '',
+      time: timeStr
+    };
+    
+    // 添加到消息列表
+    messages.value.push(botMessage);
+    
+    console.log('发送请求到云端大模型，提示词:', prompt);
+    
+    // 使用GET请求发送数据，URL编码提示词参数
+    const encodedPrompt = encodeURIComponent(prompt);
+    const aiBaseUrl = import.meta.env.VITE_APP_AI_BASE_URL ;
+    const response = await fetch(`${aiBaseUrl}/chat/chat_for_stream?prompt=${encodedPrompt}`, {
+      method: 'GET',
+      headers: {
+        'Accept': 'text/plain, text/html, */*'
+      },
+      signal
     });
     
-    // 滚动到底部
-    nextTick(() => {
-      scrollToBottom();
-    });
-  }, 1500);
+    console.log('收到响应状态:', response.status, response.statusText);
+    console.log('响应内容类型:', response.headers.get('content-type'));
+    
+    if (!response.ok) {
+      console.error('API请求失败:', response.status, response.statusText);
+      
+      // 尝试读取错误信息
+      const errorText = await response.text().catch(() => null);
+      console.error('错误详情:', errorText);
+      
+      throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+    }
+    
+    // 检查响应是否有body
+    if (!response.body) {
+      throw new Error('响应没有内容流');
+    }
+    
+    // 处理流式响应
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder('utf-8');
+    let done = false;
+    
+    while (!done) {
+      try {
+        const { value, done: readerDone } = await reader.read();
+        done = readerDone;
+        
+        if (value) {
+          const text = decoder.decode(value, { stream: !done });
+          console.log('收到流式数据片段:', text);
+          
+          // 追加到当前机器人消息
+          botMessage.content += text;
+          
+          // 强制更新视图
+          messages.value = [...messages.value];
+          
+          // 滚动到底部
+          scrollToBottom();
+        }
+      } catch (readError) {
+        console.error('读取流时出错:', readError);
+        break;
+      }
+    }
+  } catch (error) {
+    if ((error as Error).name === 'AbortError') {
+      console.log('请求被用户取消');
+    } else {
+      console.error('云端模型响应错误:', error);
+      throw error;
+    }
+  } finally {
+    streamController.value = null;
+  }
+};
+
+// 模拟本地回复（现有功能）
+const simulateResponse = async (input: string) => {
+  // 延迟以模拟 API 响应时间
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  const now = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  
+  const botResponse = getBotResponse(input);
+  
+  messages.value.push({
+    role: 'bot',
+    content: botResponse,
+    time: timeStr
+  });
 };
 
 // 滚动到底部
@@ -1905,6 +2041,23 @@ onMounted(() => {
     showPreview.value = false;
   });
 });
+
+// 获取本地模拟回复
+const getBotResponse = (input: string): string => {
+  const normalizedInput = input.toLowerCase();
+  
+  if (normalizedInput.includes('你好') || normalizedInput.includes('hi') || normalizedInput.includes('hello')) {
+    return '你好！我是小型博美，有什么可以帮助你的吗？';
+  } else if (normalizedInput.includes('天气')) {
+    return '很抱歉，我现在还不能获取实时天气信息。';
+  } else if (normalizedInput.includes('谢谢') || normalizedInput.includes('thank')) {
+    return '不客气！如果还有其他问题，随时可以问我。';
+  } else if (normalizedInput.includes('功能') || normalizedInput.includes('能做什么')) {
+    return '我可以回答问题、进行创意写作、帮助编程，以及许多其他任务。请告诉我你需要什么帮助！';
+  } else {
+    return '该功能正在开发中，敬请期待！我们的智能问答系统将很快为您提供精准的知识库检索和专业的问题解答服务。';
+  }
+};
 
 </script>
 
@@ -2757,6 +2910,27 @@ onMounted(() => {
           
           &:hover {
             background-color: rgba(249, 115, 22, 0.2);
+          }
+        }
+        &.cloud-model-btn {
+          background-color: rgba(25, 118, 210, 0.1);
+          color: #1976d2;
+          
+          svg {
+            stroke: #1976d2;
+          }
+          
+          &:hover {
+            background-color: rgba(25, 118, 210, 0.2);
+          }
+          
+          &.active {
+            background-color: #1976d2;
+            color: white;
+            
+            svg {
+              stroke: white;
+            }
           }
         }
       }

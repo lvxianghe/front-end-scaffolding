@@ -93,6 +93,32 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
                         });
                     }
                 },
+                // 添加针对ai开头请求的代理
+                '/ai': {
+                    target: 'http://localhost:28928',
+                    changeOrigin: true,
+                    // 重写路径，确保请求正确转发
+                    rewrite: (path) => {
+                        // 如果是 /ai/chat，转发到 /ai/chat/chat_for_stream
+                        if (path === '/ai/chat') {
+                            return '/ai/chat/chat_for_stream';
+                        }
+                        return path;
+                    },
+                    configure: (proxy, options) => {
+                        // 添加调试日志
+                        proxy.on('proxyReq', (proxyReq, req, res) => {
+                            console.log('代理请求URL:', req.url);
+                            console.log('代理请求完整路径:', `${proxyReq.protocol}//${proxyReq.host}${proxyReq.path}`);
+                        });
+                        proxy.on('proxyRes', (proxyRes, req, res) => {
+                            console.log('代理响应状态码:', proxyRes.statusCode);
+                        });
+                        proxy.on('error', (err, req, res) => {
+                            console.error('代理错误:', err);
+                        });
+                    }
+                },
             },
         },
         // 打包配置
