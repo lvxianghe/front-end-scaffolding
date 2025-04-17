@@ -6,6 +6,7 @@ interface ImportMetaEnv {
     readonly VITE_APP_API_BASEURL: string;
     readonly VITE_APP_USE_MOCK: string;
     readonly VITE_APP_MOCK_BASEURL: string;
+    readonly VITE_APP_AI_API_URL: string; // AI API服务器URL
 }
 
 interface ImportMeta {

@@ -100,9 +100,9 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
                     // 重写路径，确保请求正确转发
                     rewrite: (path) => {
                         // 如果是 /ai/chat，转发到 /ai/chat/chat_for_stream
-                        if (path === '/ai/chat') {
-                            return '/ai/chat/chat_for_stream';
-                        }
+                        // if (path === '/ai/chat') {
+                        //     return '/ai/chat/chat_for_stream';
+                        // }
                         return path;
                     },
                     configure: (proxy, options) => {
