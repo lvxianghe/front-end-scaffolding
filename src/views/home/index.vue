@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import { useRouter } from 'vue-router';
-import AppHeader from '@/components/layout/AppHeader.vue';
+import AppHeader from '@/components/layout/Header/index.vue';
 import NavigationCard from '@/components/common/NavigationCard.vue';
 
 interface CardItem {

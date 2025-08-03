@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { ArrowLeft } from '@element-plus/icons-vue';
-import AppHeader from '@/components/layout/AppHeader.vue';
+import AppHeader from '@/components/layout/Header/index.vue';
 
 const router = useRouter();
 

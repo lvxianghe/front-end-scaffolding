@@ -62,12 +62,67 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
             port: 7777,
             open: false,
             cors: true,
-            // 根据需要配置代理
+            // 代理配置
             proxy: {
+                // 原有API代理
                 '/api': {
                     target: env.VITE_APP_API_BASEURL || 'http://localhost:28922',
                     changeOrigin: true,
                     rewrite: (path) => path.replace(/^\/api/, ''),
+                },
+                // AllTick API代理
+                '/api/alltick': {
+                    target: 'https://quote.alltick.co',
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/api\/alltick/, ''),
+                    configure: (proxy, options) => {
+                        proxy.on('proxyReq', (proxyReq, req, res) => {
+                            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+                            proxyReq.setHeader('Origin', 'https://alltick.co');
+                            proxyReq.setHeader('Referer', 'https://alltick.co/');
+                        });
+                    }
+                },
+                // 新浪财经API代理
+                '/api/sina': {
+                    target: 'https://hq.sinajs.cn',
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/api\/sina/, ''),
+                    configure: (proxy, options) => {
+                        proxy.on('proxyReq', (proxyReq, req, res) => {
+                            proxyReq.setHeader('Referer', 'https://finance.sina.com.cn');
+                            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+                        });
+                    }
+                },
+                // 腾讯财经API代理
+                '/api/tencent': {
+                    target: 'https://web.ifzq.gtimg.cn',
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/api\/tencent/, ''),
+                    configure: (proxy, options) => {
+                        proxy.on('proxyReq', (proxyReq, req, res) => {
+                            proxyReq.setHeader('Referer', 'https://gu.qq.com');
+                            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+                        });
+                    }
+                },
+                // Yahoo Finance API代理
+                '/api/yahoo': {
+                    target: 'https://query1.finance.yahoo.com',
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/api\/yahoo/, ''),
+                    configure: (proxy, options) => {
+                        proxy.on('proxyReq', (proxyReq, req, res) => {
+                            proxyReq.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+                        });
+                    }
+                },
+                // Finnhub API代理
+                '/api/finnhub': {
+                    target: 'https://finnhub.io',
+                    changeOrigin: true,
+                    rewrite: (path) => path.replace(/^\/api\/finnhub/, '')
                 }
             },
         },

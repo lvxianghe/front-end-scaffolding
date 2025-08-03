@@ -7,13 +7,13 @@
           <span class="logo-text">吕相赫</span>
         </router-link>
       </div>
-      
+
       <!-- 右侧操作区 -->
       <div class="action-section">
-        <el-button 
-          type="primary" 
-          @click="goToLogin"
-          class="login-btn"
+        <el-button
+            type="primary"
+            @click="goToLogin"
+            class="login-btn"
         >
           登录
         </el-button>
@@ -71,4 +71,4 @@ const goToLogin = () => {
   padding: 8px 20px;
   font-weight: 500;
 }
-</style> 
+</style>
